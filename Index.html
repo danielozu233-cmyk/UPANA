@@ -627,13 +627,13 @@ document.body.appendChild(btnDashboard);
 
 
 document.addEventListener("keydown", (e) => {
-  if (e.shiftKey && e.key.toLowerCase() === ".") {
+  if (e.shiftKey && e.key.toLowerCase() === ":") {
     btnReset.style.opacity = btnReset.style.opacity === "1" ? "0" : "1";
   }
-  if (e.shiftKey && e.key.toLowerCase() === ".") {
+  if (e.shiftKey && e.key.toLowerCase() === ":") {
     btnExcel.style.opacity = btnExcel.style.opacity === "1" ? "0" : "1";
   }
-  if(e.shiftKey && e.key.toLowerCase() === ".") {
+  if(e.shiftKey && e.key.toLowerCase() === ":") {
     btnDashboard.style.opacity = btnDashboard.style.opacity === "1" ? "0" : "1";
   }
 });
@@ -684,5 +684,6 @@ btnExcel.onclick = async () => {
 </body>
 
 </html>
+
 
 

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Encuesta de Satisfacción</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .card {
+      max-width: 500px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .info {
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .msg {
+      text-align: center;
+      font-weight: bold;
+      padding: 20px 0;
+    }
+    .largo {
+      width: 96%;
+    }
+    .ofni {
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card" id="contenido">
+  <h3>Encuesta de Satisfacción</h3>
+  <p class="info">
+    Tu opinión es muy importante para nosotros.<br>
+    <strong>Indica tu ID de estudiante</strong> para poder dar seguimiento en caso de algún inconveniente.
+  </p>
+
+  <form id="encuestaForm">
+    <label>ID de estudiante</label>
+    <input class="largo" required type="text" id="idEstudiante">
+
+    <label>⭐ Amabilidad del agente</label>
+    <select id="amabilidad" required>
+      <option value="">Seleccione</option>
+      <option value="1">1 - Muy Malo</option>
+      <option value="2">2 - Malo</option>
+      <option value="3">3 - Intermedio</option>
+      <option value="4">4 - Bueno</option>
+      <option value="5">5 - Excelente</option>
+    </select>
+
+    <label>⭐ Claridad de la información</label>
+    <select id="claridad" required>
+      <option value="">Seleccione</option>
+      <option value="1">1 - Muy Malo</option>
+      <option value="2">2 - Malo</option>
+      <option value="3">3 - Intermedio</option>
+      <option value="4">4 - Bueno</option>
+      <option value="5">5 - Excelente</option>
+    </select>
+
+    <label>⭐ Tiempo de respuesta</label>
+    <select id="tiempo" required>
+      <option value="">Seleccione</option>
+      <option value="1">1 - Muy Malo</option>
+      <option value="2">2 - Malo</option>
+      <option value="3">3 - Intermedio</option>
+      <option value="4">4 - Bueno</option>
+      <option value="5">5 - Excelente</option>
+    </select>
+
+    <label>⭐ Solución del problema</label>
+    <select id="solucion" required>
+      <option value="">Seleccione</option>
+      <option value="1">1 - Muy Malo</option>
+      <option value="2">2 - Malo</option>
+      <option value="3">3 - Intermedio</option>
+      <option value="4">4 - Bueno</option>
+      <option value="5">5 - Excelente</option>
+    </select>
+
+    <label>📝 Comentarios</label>
+    <textarea required class="largo" id="comentario" rows="3"></textarea>
+
+    <strong class="ofni">Nuestros agentes no cuentan con acceso para visualizar estos resultados.</strong>
+
+    <button type="submit">Enviar encuesta</button>
+  </form>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeAbygOcoV1G9Zh8wd7topjXttlmJ892Y",
+    authDomain: "workplace-18675.firebaseapp.com",
+    projectId: "workplace-18675",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const params = new URLSearchParams(window.location.search);
+  const agente = params.get("agente") || "No definido";
+  const ext = params.get("ext") || "";
+  const respuesta = params.get("respuesta") || "no";
+
+  const contenido = document.getElementById("contenido");
+  const form = document.getElementById("encuestaForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const idInput = document.getElementById("idEstudiante").value.trim();
+    let docRef;
+
+    if (idInput !== "") {
+      const docId = `${agente}_${idInput}`;
+      docRef = doc(db, "encuestas", docId);
+
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        contenido.innerHTML = "<p class='msg'>Esta encuesta ya fue registrada. ¡Gracias! 🙌</p>";
+        return;
+      }
+    } else {
+      docRef = doc(db, "encuestas", crypto.randomUUID());
+    }
+
+    const a = Number(amabilidad.value);
+    const c = Number(claridad.value);
+    const t = Number(tiempo.value);
+    const s = Number(solucion.value);
+
+    const promedio = ((a + c + t + s) / 4).toFixed(2);
+
+    await setDoc(docRef, {
+      agente,
+      extension: ext,
+      respuesta,
+      id_estudiante: idInput || null,
+      amabilidad: a,
+      claridad: c,
+      tiempo: t,
+      solucion: s,
+      promedio: Number(promedio),
+      comentario: comentario.value || "",
+      fecha: serverTimestamp()
+    });
+
+    contenido.innerHTML = "<p class='msg'>¡Gracias por tu opinión! 😊</p>";
+  });
+</script>
+
+</body>
+</html>

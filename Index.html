@@ -289,6 +289,51 @@
             color: #f1f5f9;
             font-weight: 500;
         }
+/* FONDO OSCURO DETRAS */
+.overlay-banio{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.65);
+    backdrop-filter: blur(3px);
+    z-index:9998;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+}
+
+.overlay-banio.show{
+    opacity:1;
+}
+
+/* ALERTA PRINCIPAL */
+.alerta-banio{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(.8);
+    background:#111827;
+    color:white;
+    padding:28px 40px;
+    border-radius:14px;
+    font-size:22px;
+    font-weight:700;
+    text-align:center;
+    border:3px solid #ef4444;
+    box-shadow:
+        0 0 20px rgba(239,68,68,0.8),
+        0 0 60px rgba(239,68,68,0.4);
+    z-index:9999;
+    opacity:0;
+    transition:all .25s ease;
+}
+
+.alerta-banio.show{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+}
     </style>
 </head>
 
@@ -334,6 +379,14 @@ const refBanio = doc(db, "banos", "estado");
 const contenedor = document.getElementById("contenedor");
 const tarjetas = {};
 const menuGlobal = document.getElementById("menuGlobal");
+function mostrarAlertaBanio() {
+  const alerta = document.getElementById("alertaBanio");
+  alerta.classList.add("show");
+
+  setTimeout(() => {
+    alerta.classList.remove("show");
+  }, 2500);
+}
 let tarjetaActiva = null;
 
 // --- CREAR TARJETAS ---
@@ -463,6 +516,18 @@ async function accionMenu(nombre, tipo) {
 
 // --- Cambiar estado ---
 async function toggleEstado(nombre, tipo) {
+  // --- Limitar máximo 2 en baño ---
+if (tipo === "baño") {
+  let contador = 0;
+  nombres.forEach(n => {
+    if (tarjetas[n].info?.tipo === "baño") contador++;
+  });
+
+  if (contador >= 2) {
+    mostrarAlertaBanio();
+    return;
+  }
+}
   if (!nombre) return;
   const info = tarjetas[nombre].info || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };
   const ahora = Date.now();
@@ -679,11 +744,10 @@ btnExcel.onclick = async () => {
 };
 
 </script>
-
+<div id="alertaBanio" class="alerta-banio">
+    Espere a que otro agente regrese del baño
+</div>
 
 </body>
 
 </html>
-
-
-

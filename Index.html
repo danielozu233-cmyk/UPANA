@@ -375,7 +375,7 @@ const db = getFirestore(app);
 
 const nombres = ["Nestor", "Daniel", "Andres", "Rafael", "Alejandro", "Tania", "Marta", "Pablo", "Saraí", "Michi", "Evelyn", "Merlin", "Ashley", "Gabriela","Bryan","Diego","Jorge","Joselyne","Andrea","Omar","Javier","Synndy","Anthony","Mildred","Madelin","Majo","Monica","Jackeline",];
 const LIMITE = { baño: 15 * 60, almuerzo: 60 * 60 };
-const refBanio = doc(db, "banos", "estado");
+const refBanio = doc(db, "callcenter", "estado");
 const contenedor = document.getElementById("contenedor");
 const tarjetas = {};
 const menuGlobal = document.getElementById("menuGlobal");
@@ -557,8 +557,24 @@ if (tipo === "baño") {
 }
 
 // --- Escuchar Firestore ---
-onSnapshot(refBanio, (snap) => {
-  if (!snap.exists()) return;
+onSnapshot(refBanio, async (snap) => {
+
+  if (!snap.exists()) {
+
+    const inicial = {};
+
+    nombres.forEach(nombre => {
+      inicial[nombre] = {
+        tipo: null,
+        inicio: null,
+        tiempoBanio: 0,
+        tiempoAlmuerzo: 0
+      };
+    });
+
+    await setDoc(refBanio, inicial);
+    return;
+  }
   const data = snap.data();
   nombres.forEach(nombre => {
     const info = data[nombre] || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };

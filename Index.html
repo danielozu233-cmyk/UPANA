@@ -379,6 +379,10 @@ const refBanio = doc(db, "callcenter", "estado");
 const contenedor = document.getElementById("contenedor");
 const tarjetas = {};
 const menuGlobal = document.getElementById("menuGlobal");
+
+menuGlobal.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
 function mostrarAlertaBanio() {
   const alerta = document.getElementById("alertaBanio");
   alerta.classList.add("show");

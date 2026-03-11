@@ -518,9 +518,16 @@ async function accionMenu(nombre, tipo) {
 async function toggleEstado(nombre, tipo) {
   // --- Limitar máximo 2 en baño ---
 if (tipo === "baño") {
+
+  const snap = await getDocs(collection(db, "callcenter"));
+  const docEstado = await getDocs(query(collection(db,"callcenter")));
+  
+  const estadoActual = (await getDocs(query(collection(db,"callcenter")))).docs[0]?.data() || {};
+
   let contador = 0;
-  nombres.forEach(n => {
-    if (tarjetas[n].info?.tipo === "baño") contador++;
+
+  Object.values(estadoActual).forEach(a => {
+    if (a?.tipo === "baño") contador++;
   });
 
   if (contador >= 2) {
@@ -557,24 +564,8 @@ if (tipo === "baño") {
 }
 
 // --- Escuchar Firestore ---
-onSnapshot(refBanio, async (snap) => {
-
-  if (!snap.exists()) {
-
-    const inicial = {};
-
-    nombres.forEach(nombre => {
-      inicial[nombre] = {
-        tipo: null,
-        inicio: null,
-        tiempoBanio: 0,
-        tiempoAlmuerzo: 0
-      };
-    });
-
-    await setDoc(refBanio, inicial);
-    return;
-  }
+onSnapshot(refBanio, (snap) => {
+  if (!snap.exists()) return;
   const data = snap.data();
   nombres.forEach(nombre => {
     const info = data[nombre] || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };

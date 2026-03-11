@@ -379,10 +379,6 @@ const refBanio = doc(db, "callcenter", "estado");
 const contenedor = document.getElementById("contenedor");
 const tarjetas = {};
 const menuGlobal = document.getElementById("menuGlobal");
-
-menuGlobal.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
 function mostrarAlertaBanio() {
   const alerta = document.getElementById("alertaBanio");
   alerta.classList.add("show");
@@ -522,16 +518,9 @@ async function accionMenu(nombre, tipo) {
 async function toggleEstado(nombre, tipo) {
   // --- Limitar máximo 2 en baño ---
 if (tipo === "baño") {
-
-  const snap = await getDocs(collection(db, "callcenter"));
-  const docEstado = await getDocs(query(collection(db,"callcenter")));
-  
-  const estadoActual = (await getDocs(query(collection(db,"callcenter")))).docs[0]?.data() || {};
-
   let contador = 0;
-
-  Object.values(estadoActual).forEach(a => {
-    if (a?.tipo === "baño") contador++;
+  nombres.forEach(n => {
+    if (tarjetas[n].info?.tipo === "baño") contador++;
   });
 
   if (contador >= 2) {

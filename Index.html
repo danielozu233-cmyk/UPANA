@@ -529,7 +529,8 @@ if (tipo === "baño") {
   }
 }
   if (!nombre) return;
-const info = tarjetas[nombre].info || { tipo: null, segundos: 0 };
+  const info = tarjetas[nombre].info || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };
+  const ahora = Date.now();
   const inicioMs = (val) => {
     if (!val && val !== 0) return null;
     if (typeof val === "number") return val;
@@ -545,13 +546,9 @@ const info = tarjetas[nombre].info || { tipo: null, segundos: 0 };
     if (info.tipo === "baño") acBanio += segs;
     if (info.tipo === "almuerzo") acAlmuerzo += segs;
     if (tipo === info.tipo || tipo === null) {
-      await updateDoc(refBanio, { 
-[nombre]: { tipo: tipo, segundos: 0 } 
-});
+      await updateDoc(refBanio, { [nombre]: { tipo: null, inicio: null, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
     } else {
-     await updateDoc(refBanio, { 
-[nombre]: { tipo: null, segundos: info.segundos || 0 } 
-});
+      await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
     }
   } else {
     if (!tipo) return;
@@ -564,7 +561,7 @@ onSnapshot(refBanio, (snap) => {
   if (!snap.exists()) return;
   const data = snap.data();
   nombres.forEach(nombre => {
-   const info = data[nombre] || { tipo: null, segundos: 0 };
+    const info = data[nombre] || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };
     tarjetas[nombre].info = info;
     if (info.tipo) { 
       tarjetas[nombre].estado.textContent = info.tipo === "baño" ? "En Baño" : "Almorzando"; 
@@ -577,42 +574,24 @@ onSnapshot(refBanio, (snap) => {
 });
 
 // --- Cronómetros ---
-setInterval(async () => {
-
-  const updates = {};
-
+setInterval(() => {
+  const ahora = Date.now();
   nombres.forEach(nombre => {
-
     const info = tarjetas[nombre].info;
     if (!info) return;
-
-    let segundos = info.segundos || 0;
-
-    if (info.tipo) {
-      segundos++;
-      updates[nombre] = { ...info, segundos };
-    }
-
-    const min = Math.floor(segundos / 60);
-    const sec = segundos % 60;
-
-    if (info.tipo === "baño") {
-      tarjetas[nombre].tiempoBanio.innerHTML =
-      `Baño: <span class="cronometro">${min}:${sec.toString().padStart(2,"0")}</span>`;
-    }
-
-    if (info.tipo === "almuerzo") {
-      tarjetas[nombre].tiempoAlmuerzo.innerHTML =
-      `Almuerzo: <span class="cronometro">${min}:${sec.toString().padStart(2,"0")}</span>`;
-    }
-
+    let tBanio = info.tiempoBanio || 0, tAlmuerzo = info.tiempoAlmuerzo || 0;
+    const inicioVal = info.inicio;
+    const inicioMs = (inicioVal && inicioVal.toMillis) ? inicioVal.toMillis() : (typeof inicioVal === "number" ? inicioVal : null);
+    if (info.tipo === "baño" && inicioMs) tBanio += Math.floor((ahora - inicioMs) / 1000);
+    if (info.tipo === "almuerzo" && inicioMs) tAlmuerzo += Math.floor((ahora - inicioMs) / 1000);
+    const minB = Math.floor(tBanio / 60), secB = tBanio % 60;
+    const minA = Math.floor(tAlmuerzo / 60), secA = tAlmuerzo % 60;
+    tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class="cronometro">${minB}:${secB.toString().padStart(2, "0")}</span>`;
+    tarjetas[nombre].tiempoAlmuerzo.innerHTML = `Almuerzo: <span class="cronometro">${minA}:${secA.toString().padStart(2, "0")}</span>`;
+    if (info.tipo === "baño" && tBanio > LIMITE.baño) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Baño excedido"; }
+    if (info.tipo === "almuerzo" && tAlmuerzo > LIMITE.almuerzo) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Almuerzo excedido"; }
   });
-
-  if(Object.keys(updates).length){
-    await updateDoc(refBanio, updates);
-  }
-
-},1000);
+}, 1000);
 
 // --- Registro llamadas ---
 async function registrarLlamada(nombre, respondio) {

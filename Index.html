@@ -548,25 +548,11 @@ if (tipo === "baño") {
     if (tipo === info.tipo || tipo === null) {
       await updateDoc(refBanio, { [nombre]: { tipo: null, inicio: null, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
     } else {
-      await updateDoc(refBanio, { 
-  [nombre]: { 
-    tipo: tipo, 
-    inicio: serverTimestamp(),
-    tiempoBanio: acBanio, 
-    tiempoAlmuerzo: acAlmuerzo 
-  } 
-});
+      await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
     }
   } else {
     if (!tipo) return;
-    await updateDoc(refBanio, { 
-  [nombre]: { 
-    tipo: tipo, 
-    inicio: serverTimestamp(), 
-    tiempoBanio: info.tiempoBanio, 
-    tiempoAlmuerzo: info.tiempoAlmuerzo 
-  } 
-});
+    await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: info.tiempoBanio, tiempoAlmuerzo: info.tiempoAlmuerzo } });
   }
 }
 
@@ -590,47 +576,21 @@ onSnapshot(refBanio, (snap) => {
 // --- Cronómetros ---
 setInterval(() => {
   const ahora = Date.now();
-
   nombres.forEach(nombre => {
-
     const info = tarjetas[nombre].info;
     if (!info) return;
-
-    let tBanio = info.tiempoBanio || 0;
-    let tAlmuerzo = info.tiempoAlmuerzo || 0;
-
+    let tBanio = info.tiempoBanio || 0, tAlmuerzo = info.tiempoAlmuerzo || 0;
     const inicioVal = info.inicio;
-    const inicioMs =
-      (inicioVal && inicioVal.toMillis)
-        ? inicioVal.toMillis()
-        : (typeof inicioVal === "number" ? inicioVal : null);
-
-    if (inicioMs) {
-      let diff = Math.max(0, ahora - inicioMs);
-
-      if (info.tipo === "baño") {
-        tBanio += Math.floor(diff / 1000);
-      }
-
-      if (info.tipo === "almuerzo") {
-        tAlmuerzo += Math.floor(diff / 1000);
-      }
-    }
-
-    const minB = Math.floor(tBanio / 60);
-    const secB = tBanio % 60;
-
-    const minA = Math.floor(tAlmuerzo / 60);
-    const secA = tAlmuerzo % 60;
-
-    tarjetas[nombre].tiempoBanio.innerHTML =
-      `Baño: <span class="cronometro">${minB}:${secB.toString().padStart(2, "0")}</span>`;
-
-    tarjetas[nombre].tiempoAlmuerzo.innerHTML =
-      `Almuerzo: <span class="cronometro">${minA}:${secA.toString().padStart(2, "0")}</span>`;
-
+    const inicioMs = (inicioVal && inicioVal.toMillis) ? inicioVal.toMillis() : (typeof inicioVal === "number" ? inicioVal : null);
+    if (info.tipo === "baño" && inicioMs) tBanio += Math.floor((ahora - inicioMs) / 1000);
+    if (info.tipo === "almuerzo" && inicioMs) tAlmuerzo += Math.floor((ahora - inicioMs) / 1000);
+    const minB = Math.floor(tBanio / 60), secB = tBanio % 60;
+    const minA = Math.floor(tAlmuerzo / 60), secA = tAlmuerzo % 60;
+    tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class="cronometro">${minB}:${secB.toString().padStart(2, "0")}</span>`;
+    tarjetas[nombre].tiempoAlmuerzo.innerHTML = `Almuerzo: <span class="cronometro">${minA}:${secA.toString().padStart(2, "0")}</span>`;
+    if (info.tipo === "baño" && tBanio > LIMITE.baño) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Baño excedido"; }
+    if (info.tipo === "almuerzo" && tAlmuerzo > LIMITE.almuerzo) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Almuerzo excedido"; }
   });
-
 }, 1000);
 
 // --- Registro llamadas ---

@@ -548,11 +548,25 @@ if (tipo === "baño") {
     if (tipo === info.tipo || tipo === null) {
       await updateDoc(refBanio, { [nombre]: { tipo: null, inicio: null, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
     } else {
-      await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
+      await updateDoc(refBanio, { 
+  [nombre]: { 
+    tipo: tipo, 
+    inicio: serverTimestamp(),
+    tiempoBanio: acBanio, 
+    tiempoAlmuerzo: acAlmuerzo 
+  } 
+});
     }
   } else {
     if (!tipo) return;
-    await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: info.tiempoBanio, tiempoAlmuerzo: info.tiempoAlmuerzo } });
+    await updateDoc(refBanio, { 
+  [nombre]: { 
+    tipo: tipo, 
+    inicio: serverTimestamp(), 
+    tiempoBanio: info.tiempoBanio, 
+    tiempoAlmuerzo: info.tiempoAlmuerzo 
+  } 
+});
   }
 }
 

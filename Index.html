@@ -289,7 +289,6 @@
             color: #f1f5f9;
             font-weight: 500;
         }
-/* FONDO OSCURO DETRAS */
 .overlay-banio{
     position:fixed;
     top:0;
@@ -308,7 +307,6 @@
     opacity:1;
 }
 
-/* ALERTA PRINCIPAL */
 .alerta-banio{
     position:fixed;
     top:10%;
@@ -389,7 +387,6 @@ function mostrarAlertaBanio() {
 }
 let tarjetaActiva = null;
 
-// --- CREAR TARJETAS ---
 nombres.forEach(nombre => {
   const tarjeta = document.createElement("div");
   tarjeta.className = "tarjeta";
@@ -496,7 +493,6 @@ nombres.forEach(nombre => {
   });
 });
 
-// --- Cerrar menu ---
 document.addEventListener("click", () => {
   menuGlobal.classList.remove("active");
   menuGlobal.setAttribute("aria-hidden", "true");
@@ -504,7 +500,6 @@ document.addEventListener("click", () => {
   tarjetaActiva = null;
 });
 
-// --- Botones menu ---
 menuGlobal.querySelector(".btn-libre").onclick = () => accionMenu(tarjetaActiva, null);
 menuGlobal.querySelector(".btn-banio").onclick = () => accionMenu(tarjetaActiva, "baño");
 menuGlobal.querySelector(".btn-almuerzo").onclick = () => accionMenu(tarjetaActiva, "almuerzo");
@@ -514,9 +509,7 @@ async function accionMenu(nombre, tipo) {
   await toggleEstado(nombre, tipo);
 }
 
-// --- Cambiar estado ---
 async function toggleEstado(nombre, tipo) {
-  // --- Limitar máximo 2 en baño ---
 if (tipo === "baño") {
   let contador = 0;
   nombres.forEach(n => {
@@ -556,7 +549,6 @@ if (tipo === "baño") {
   }
 }
 
-// --- Escuchar Firestore ---
 onSnapshot(refBanio, (snap) => {
   if (!snap.exists()) return;
   const data = snap.data();
@@ -573,7 +565,6 @@ onSnapshot(refBanio, (snap) => {
   });
 });
 
-// --- Cronómetros ---
 setInterval(() => {
   const ahora = Date.now();
   nombres.forEach(nombre => {
@@ -593,7 +584,6 @@ setInterval(() => {
   });
 }, 1000);
 
-// --- Registro llamadas ---
 async function registrarLlamada(nombre, respondio) {
   const tar = tarjetas[nombre];
   const numero = tar.inputNumero.value.trim();
@@ -617,7 +607,6 @@ async function registrarLlamada(nombre, respondio) {
   }
 }
 
-// --- Escuchar llamadas ---
 onSnapshot(collection(db, "llamadas"), (snapshot) => {
   const llamadasPorAgente = {};
   snapshot.forEach((doc) => {
@@ -636,7 +625,6 @@ onSnapshot(collection(db, "llamadas"), (snapshot) => {
   });
 });
 
-// --- BOTÓN RESET OCULTO ---
 const btnReset = document.createElement("button");
 btnReset.textContent = "⟳ RESET";
 Object.assign(btnReset.style, {
@@ -647,7 +635,6 @@ Object.assign(btnReset.style, {
 });
 document.body.appendChild(btnReset);
 
-// --- BOTÓN DESCARGAR EXCEL ---
 const btnExcel = document.createElement("button");
 btnExcel.textContent = "⬇️ EXCEL";
 Object.assign(btnExcel.style, {
@@ -658,7 +645,6 @@ Object.assign(btnExcel.style, {
 });
 document.body.appendChild(btnExcel);
 
-// --- BOTÓN ABRIR DASHBOARD ---
 const btnDashboard = document.createElement("button");
 btnDashboard.textContent = "📊 ENCUESTAS  ";
 
@@ -678,7 +664,6 @@ Object.assign(btnDashboard.style, {
   zIndex: "5000"
 });
 
-// Acción: abrir enlace en nueva pestaña
 btnDashboard.onclick = () => {
   window.open(
     "https://firebasestorage.googleapis.com/v0/b/workplace-18675.firebasestorage.app/o/Dashboard%20Encuestas.html?alt=media&token=78d463d1-3957-4d2b-9fdb-e7f435babaff",
@@ -687,7 +672,6 @@ btnDashboard.onclick = () => {
 };
 
 
-// Agregar al body
 document.body.appendChild(btnDashboard);
 
 
@@ -726,7 +710,6 @@ btnReset.onclick = async () => {
   alert("Todo se ha reiniciado correctamente ✅");
 };
 
-// --- DESCARGAR A EXCEL ---
 btnExcel.onclick = async () => {
   const llamadasSnapshot = await getDocs(collection(db, "llamadas"));
   const data = llamadasSnapshot.docs.map(d => {

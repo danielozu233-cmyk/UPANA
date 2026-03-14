@@ -41,7 +41,7 @@
             position: relative;
             background: #1e293b;
             border-radius: 12px;
-            padding: 12px 8px;
+padding:22px 8px 12px 8px; /* espacio arriba para login */
             text-align: center;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
             display: flex;
@@ -332,12 +332,30 @@
     opacity:1;
     transform:translate(-50%,-50%) scale(1);
 }
+.login-superior{
+position:absolute;
+top:-15px;
+left:8px;
+font-size:12px;
+font-weight:600;
+padding:2px 6px;
+border-radius:5px;
+}
+
+.login-puntual{
+background:#052e16;
+color:#4ade80;
+}
+
+.login-tarde{
+background:#450a0a;
+color:#f87171;
+}
     </style>
 </head>
 
 <body>
-    <h1>Tiempos CC</h1>
-    <br>
+    <h1></h1>
     <div class="contenedor" id="contenedor"></div>
 
     <!-- menú flotante -->
@@ -348,6 +366,7 @@
     </div>
 
     <script type="module">
+      import { increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { 
   initializeApp 
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -370,8 +389,63 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+const refLogins = collection(db,"agentes_sabado");
 const nombres = ["Nestor", "Daniel", "Andres", "Rafael", "Alejandro", "Tania", "Marta", "Pablo", "Saraí", "Michi", "Evelyn", "Merlin", "Ashley", "Gabriela","Bryan","Diego","Jorge","Joselyne","Andrea","Omar","Javier","Synndy","Anthony","Mildred","Madelin","Majo","Monica","Jackeline",];
+const agentes = [
+{ nombre:"Saraí", ext:"8001", horario:"07:00" },
+{ nombre:"Gabriela", ext:"8002", horario:"09:00" },
+{ nombre:"Javier", ext:"8003", horario:"07:00" },
+{ nombre:"Monica", ext:"8005", horario:"09:00" },
+{ nombre:"Alejandro", ext:"8006", horario:"07:00" },
+{ nombre:"Joselyne", ext:"8007", horario:"09:00" },
+{ nombre:"Jackeline", ext:"8008", horario:"07:00" },
+{ nombre:"Mildred", ext:"8009", horario:"07:00" },
+{ nombre:"Tania", ext:"8010", horario:"07:00" },
+{ nombre:"Anthony", ext:"8011", horario:"09:00" },
+{ nombre:"Jorge", ext:"8013", horario:"09:00" },
+{ nombre:"Nestor", ext:"8015", horario:"07:00" },
+{ nombre:"Andrea", ext:"8016", horario:"09:00" },
+{ nombre:"Diego", ext:"8017", horario:"09:00" },
+{ nombre:"Ashley", ext:"8018", horario:"07:00" },
+{ nombre:"Synndy", ext:"8020", horario:"09:00" },
+{ nombre:"Michi", ext:"8021", horario:"07:00" },
+{ nombre:"Omar", ext:"8022",horario:"08:00"},
+{ nombre:"Madelin", ext:"8023", horario:"09:00" },
+{ nombre:"Evelyn", ext:"8024", horario:"07:00" },
+{ nombre:"Bryan", ext:"8026", horario:"09:00" },
+{ nombre:"Rafael", ext:"8027", horario:"07:00" },
+{ nombre:"Marta", ext:"8028", horario:"07:00" },
+{ nombre:"Pablo", ext:"8029", horario:"07:00" },
+{ nombre:"Majo", ext:"8030", horario:"09:00" }
+];
+const extensiones = {
+Saraí:"8001",
+Gabriela:"8002",
+Javier:"8003",
+Monica:"8005",
+Alejandro:"8006",
+Joselyne:"8007",
+Jackeline:"8008",
+Mildred:"8009",
+Tania:"8010",
+Anthony:"8011",
+Jorge:"8013",
+Nestor:"8015",
+Andrea:"8016",
+Diego:"8017",
+Ashley:"8018",
+Synndy:"8020",
+Michi:"8021",
+Omar:"8022",
+Madelin:"8023",
+Evelyn:"8024",
+Bryan:"8026",
+Rafael:"8027",
+Marta:"8028",
+Pablo:"8029",
+Majo:"8030"
+}
+
 const LIMITE = { baño: 15 * 60, almuerzo: 60 * 60 };
 const refBanio = doc(db, "callcenter", "estado");
 const contenedor = document.getElementById("contenedor");
@@ -400,7 +474,9 @@ nombres.forEach(nombre => {
   const spanNombre = document.createElement("div");
   spanNombre.className = "nombre";
   spanNombre.textContent = nombre;
-
+const loginSpan = document.createElement("div");
+loginSpan.className = "login-superior";
+loginSpan.textContent = "--";
   const estado = document.createElement("div");
   estado.className = "estado libre";
   estado.textContent = "Libre";
@@ -415,13 +491,13 @@ nombres.forEach(nombre => {
 
   const estadisticas = document.createElement("div");
   estadisticas.className = "estadisticas";
-  estadisticas.textContent = "Llamadas: 0 | ✅:0 | ❌:0";
+  estadisticas.textContent = "📞⬅️| 📞➡️";
 
   const iconTelefono = document.createElement("div");
   iconTelefono.className = "icon-telefono";
   iconTelefono.textContent = "📞";
 
-  frontal.append(spanNombre, estado, tiempoBanio, tiempoAlmuerzo, estadisticas, iconTelefono);
+frontal.append(spanNombre, loginSpan, estado, tiempoBanio, tiempoAlmuerzo, estadisticas, iconTelefono);
 
   const trasera = document.createElement("div");
   trasera.className = "trasera";
@@ -433,16 +509,22 @@ nombres.forEach(nombre => {
   const registro = document.createElement("div");
   registro.className = "registro";
 
-  const inputNumero = document.createElement("input");
-  inputNumero.placeholder = "Número de teléfono";
 
-  const selectCant = document.createElement("select");
-  ["1", "2"].forEach(val => {
-    const opt = document.createElement("option");
-    opt.value = val; 
-    opt.text = val + " llamada" + (val === "2" ? "s" : "");
-    selectCant.appendChild(opt);
-  });
+const selectTipo = document.createElement("select");
+
+["Entrante","Saliente"].forEach(tipo=>{
+  const opt=document.createElement("option");
+  opt.value=tipo;
+  opt.textContent=tipo;
+  selectTipo.appendChild(opt);
+});
+
+
+const inputCantidad = document.createElement("input");
+inputCantidad.type = "number";
+inputCantidad.min = "1";
+inputCantidad.value = "1";
+inputCantidad.placeholder = "Cantidad";
 
   const botones = document.createElement("div");
   botones.className = "botones";
@@ -454,14 +536,24 @@ nombres.forEach(nombre => {
   btnX.textContent = "❌";
   botones.append(btnX, btnCheck);
 
-  registro.append(inputNumero, selectCant, botones);
-  trasera.append(iconBanio, registro);
+registro.append(selectTipo, inputCantidad, botones);  trasera.append(iconBanio, registro);
   flip.append(frontal, trasera);
   tarjeta.appendChild(flip);
   contenedor.appendChild(tarjeta);
 
-  tarjetas[nombre] = { estado, tiempoBanio, tiempoAlmuerzo, info: {}, estadisticas, frontal, trasera, inputNumero, selectCant, btnCheck, btnX };
-
+tarjetas[nombre] = { 
+estado,
+tiempoBanio,
+tiempoAlmuerzo,
+loginSpan,
+info:{},
+estadisticas,
+frontal,
+trasera,
+selectTipo,
+inputCantidad,
+btnCheck
+};
   iconTelefono.onclick = e => {
     e.stopPropagation();
     frontal.classList.remove("active");
@@ -473,8 +565,8 @@ nombres.forEach(nombre => {
     frontal.classList.add("active");
   };
 
-  btnCheck.onclick = () => registrarLlamada(nombre, true);
-  btnX.onclick = () => registrarLlamada(nombre, false);
+  btnCheck.onclick = () => registrarLlamada(nombre);
+btnX.style.display = "none";
 
   registro.addEventListener("click", e => { e.stopPropagation(); });
 
@@ -509,7 +601,8 @@ async function accionMenu(nombre, tipo) {
   await toggleEstado(nombre, tipo);
 }
 
-async function toggleEstado(nombre, tipo) {
+async function toggleEstado(nombre, tipo){
+
 if (tipo === "baño") {
   let contador = 0;
   nombres.forEach(n => {
@@ -521,48 +614,74 @@ if (tipo === "baño") {
     return;
   }
 }
-  if (!nombre) return;
-  const info = tarjetas[nombre].info || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };
-  const ahora = Date.now();
-  const inicioMs = (val) => {
-    if (!val && val !== 0) return null;
-    if (typeof val === "number") return val;
-    if (val.toMillis) return val.toMillis();
-    return null;
-  };
 
-  if (info.tipo) {
-    const ini = inicioMs(info.inicio);
-    const segs = ini ? Math.floor((ahora - ini) / 1000) : 0;
-    let acBanio = info.tiempoBanio;
-    let acAlmuerzo = info.tiempoAlmuerzo;
-    if (info.tipo === "baño") acBanio += segs;
-    if (info.tipo === "almuerzo") acAlmuerzo += segs;
-    if (tipo === info.tipo || tipo === null) {
-      await updateDoc(refBanio, { [nombre]: { tipo: null, inicio: null, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
-    } else {
-      await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: acBanio, tiempoAlmuerzo: acAlmuerzo } });
-    }
-  } else {
-    if (!tipo) return;
-    await updateDoc(refBanio, { [nombre]: { tipo: tipo, inicio: ahora, tiempoBanio: info.tiempoBanio, tiempoAlmuerzo: info.tiempoAlmuerzo } });
-  }
+const info = tarjetas[nombre].info || { tipo:null, inicio:null, tiempoBanio:0, tiempoAlmuerzo:0 };
+
+const ahora = Date.now();
+
+const inicioMs = (val)=>{
+  if(!val && val!==0) return null;
+  if(typeof val==="number") return val;
+  if(val.toMillis) return val.toMillis();
+  return null;
+};
+
+let acBanio = info.tiempoBanio || 0;
+let acAlmuerzo = info.tiempoAlmuerzo || 0;
+
+if(info.tipo){
+
+  const ini = inicioMs(info.inicio);
+  const segs = ini ? Math.floor((ahora - ini)/1000) : 0;
+
+  if(info.tipo==="baño") acBanio += segs;
+  if(info.tipo==="almuerzo") acAlmuerzo += segs;
+
 }
 
-onSnapshot(refBanio, (snap) => {
-  if (!snap.exists()) return;
-  const data = snap.data();
-  nombres.forEach(nombre => {
-    const info = data[nombre] || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };
-    tarjetas[nombre].info = info;
-    if (info.tipo) { 
-      tarjetas[nombre].estado.textContent = info.tipo === "baño" ? "En Baño" : "Almorzando"; 
-      tarjetas[nombre].estado.className = "estado ocupado"; 
-    } else { 
-      tarjetas[nombre].estado.textContent = "Libre"; 
-      tarjetas[nombre].estado.className = "estado libre"; 
-    }
-  });
+let nuevoTipo = tipo;
+
+if(tipo === info.tipo || tipo === null){
+  nuevoTipo = null;
+}
+
+await updateDoc(refBanio,{
+  [nombre]:{
+    tipo:nuevoTipo,
+    inicio:nuevoTipo ? ahora : null,
+    tiempoBanio:acBanio,
+    tiempoAlmuerzo:acAlmuerzo
+  }
+});
+
+}
+
+
+onSnapshot(refBanio,(docSnap)=>{
+
+const data = docSnap.data();
+
+nombres.forEach(nombre=>{
+
+if(!tarjetas[nombre]) return;
+
+const info = data?.[nombre];
+
+if(!info) return;
+
+tarjetas[nombre].info = info;
+
+if(info.tipo){
+  tarjetas[nombre].estado.textContent =
+    info.tipo === "baño" ? "En Baño" : "Almorzando";
+  tarjetas[nombre].estado.className="estado ocupado";
+}else{
+  tarjetas[nombre].estado.textContent="Libre";
+  tarjetas[nombre].estado.className="estado libre";
+}
+
+});
+
 });
 
 setInterval(() => {
@@ -584,47 +703,127 @@ setInterval(() => {
   });
 }, 1000);
 
-async function registrarLlamada(nombre, respondio) {
-  const tar = tarjetas[nombre];
-  const numero = tar.inputNumero.value.trim();
-  const cant = Number(tar.selectCant.value);
-  if (!numero) { alert("Número obligatorio"); return; }
+async function registrarLlamada(nombre){
 
-  try {
-    for (let i = 0; i < cant; i++) {
-      await addDoc(collection(db, "llamadas"), {
-        agente: nombre,
-        numero,
-        respondio,
-        cantidad: 1,
-        timestamp: serverTimestamp()
-      });
-    }
-    tar.inputNumero.value = "";
-    tar.selectCant.value = "1";
-  } catch (e) {
-    console.error(e);
-  }
+const tar = tarjetas[nombre];
+
+const tipo = tar.selectTipo.value;
+const cantidad = Number(tar.inputCantidad.value);
+
+if(!cantidad || cantidad < 1){
+  alert("Ingrese una cantidad válida");
+  return;
 }
 
-onSnapshot(collection(db, "llamadas"), (snapshot) => {
-  const llamadasPorAgente = {};
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    if (!llamadasPorAgente[data.agente]) llamadasPorAgente[data.agente] = { total: 0, exito: 0, fallo: 0 };
-    llamadasPorAgente[data.agente].total++;
-    data.respondio ? llamadasPorAgente[data.agente].exito++ : llamadasPorAgente[data.agente].fallo++;
-  });
+try{
 
-  nombres.forEach((nombre) => {
-    const stats = llamadasPorAgente[nombre] || { total: 0, exito: 0, fallo: 0 };
-    if (tarjetas[nombre]) {
-      tarjetas[nombre].estadisticas.textContent =
-        `Llamadas: ${stats.total} | ✅:${stats.exito} | ❌:${stats.fallo}`;
-    }
-  });
+// guardar historial
+await addDoc(collection(db,"llamadas_test"),{
+  agente:nombre,
+  tipo:tipo,
+  cantidad:cantidad,
+  timestamp:serverTimestamp()
 });
 
+// buscar extensión
+const extension = extensiones[nombre];
+
+// referencia agente
+const refAgente = doc(db,"agentes_sabado",extension);
+
+// actualizar contador
+if(tipo === "Entrante"){
+
+await updateDoc(refAgente,{
+entrantes: increment(cantidad)
+});
+
+}
+
+if(tipo === "Saliente"){
+
+await updateDoc(refAgente,{
+salientes: increment(cantidad)
+});
+
+}
+
+tar.inputCantidad.value = 1;
+
+}catch(e){
+console.error(e);
+}
+
+}
+
+onSnapshot(collection(db, "llamadas_test"), (snapshot) => {
+const llamadasPorAgente = {};
+
+snapshot.forEach((doc)=>{
+
+const data = doc.data();
+
+if(!llamadasPorAgente[data.agente]){
+  llamadasPorAgente[data.agente] = {
+    entrantes:0,
+    salientes:0
+  };
+}
+
+if(data.tipo === "Entrante")
+  llamadasPorAgente[data.agente].entrantes += data.cantidad;
+
+if(data.tipo === "Saliente")
+  llamadasPorAgente[data.agente].salientes += data.cantidad;
+
+});
+
+  nombres.forEach((nombre) => {
+const stats = llamadasPorAgente[nombre] || {entrantes:0, salientes:0};
+
+tarjetas[nombre].estadisticas.textContent =
+`📞⬅️ ${stats.entrantes} | 📞➡️ ${stats.salientes}`;
+  });
+});
+onSnapshot(collection(db,"agentes_sabado"), (snapshot)=>{
+
+snapshot.forEach(docSnap=>{
+
+const extension = docSnap.id;
+const data = docSnap.data();
+
+const nombre = Object.keys(extensiones).find(n => extensiones[n] === extension);
+
+if(!nombre) return;
+
+if(tarjetas[nombre]){
+const login = data.login || "--";
+
+tarjetas[nombre].loginSpan.textContent = login;
+const agente = agentes.find(a => a.ext == extension);
+
+if(agente && agente.horario && login !== "--"){
+
+const loginMin = login.split(":")[0]*60 + login.split(":")[1]*1;
+const horarioMin = agente.horario.split(":")[0]*60 + agente.horario.split(":")[1]*1;
+
+tarjetas[nombre].loginSpan.classList.remove("login-puntual","login-tarde");
+
+if(loginMin > horarioMin){
+
+tarjetas[nombre].loginSpan.classList.add("login-tarde");
+
+}else{
+
+tarjetas[nombre].loginSpan.classList.add("login-puntual");
+
+}
+
+}}
+
+});
+
+});
 const btnReset = document.createElement("button");
 btnReset.textContent = "⟳ RESET";
 Object.assign(btnReset.style, {
@@ -704,14 +903,14 @@ btnReset.onclick = async () => {
   nombres.forEach((nombre) => resetData[nombre] = { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 });
   await updateDoc(refBanio, resetData);
 
-  const llamadasSnapshot = await getDocs(collection(db, "llamadas"));
-  for (const docSnap of llamadasSnapshot.docs) await deleteDoc(doc(db, "llamadas", docSnap.id));
+const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));
+  for (const docSnap of llamadasSnapshot.docs) await deleteDoc(doc(db, "llamadas_test", docSnap.id));
 
   alert("Todo se ha reiniciado correctamente ✅");
 };
 
 btnExcel.onclick = async () => {
-  const llamadasSnapshot = await getDocs(collection(db, "llamadas"));
+const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));
   const data = llamadasSnapshot.docs.map(d => {
     const item = d.data();
     const fecha = item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : "";

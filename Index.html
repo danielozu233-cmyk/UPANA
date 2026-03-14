@@ -41,7 +41,7 @@
             position: relative;
             background: #1e293b;
             border-radius: 12px;
-padding:22px 8px 12px 8px; /* espacio arriba para login */
+padding:22px 8px 12px 8px;
             text-align: center;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
             display: flex;
@@ -325,13 +325,13 @@ padding:22px 8px 12px 8px; /* espacio arriba para login */
         0 0 60px rgba(239,68,68,0.4);
     z-index:9999;
     opacity:0;
-    pointer-events:none; /* 👈 evita bloquear clics */
+    pointer-events:none;
     transition:all .25s ease;
 }
 
 .alerta-banio.show{
     opacity:1;
-    pointer-events:auto; /* 👈 solo cuando se muestra */
+    pointer-events:auto;
 }
 
 .alerta-banio.show{
@@ -364,7 +364,6 @@ color:#f87171;
     <h1></h1>
     <div class="contenedor" id="contenedor"></div>
 
-    <!-- menú flotante -->
     <div id="menuGlobal" class="menu-radial" aria-hidden="true">
         <button class="btn-libre" title="Marcar Libre">✔</button>
         <button class="btn-banio" title="Marcar Baño">🚻</button>
@@ -723,7 +722,6 @@ if(!cantidad || cantidad < 1){
 
 try{
 
-// guardar historial
 await addDoc(collection(db,"llamadas_test"),{
   agente:nombre,
   tipo:tipo,
@@ -737,7 +735,6 @@ const extension = extensiones[nombre];
 // referencia agente
 const refAgente = doc(db,"agentes_sabado",extension);
 
-// actualizar contador
 if(tipo === "Entrante"){
 
 await updateDoc(refAgente,{

@@ -325,7 +325,13 @@ padding:22px 8px 12px 8px; /* espacio arriba para login */
         0 0 60px rgba(239,68,68,0.4);
     z-index:9999;
     opacity:0;
+    pointer-events:none; /* 👈 evita bloquear clics */
     transition:all .25s ease;
+}
+
+.alerta-banio.show{
+    opacity:1;
+    pointer-events:auto; /* 👈 solo cuando se muestra */
 }
 
 .alerta-banio.show{

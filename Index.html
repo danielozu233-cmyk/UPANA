@@ -41,7 +41,7 @@
             position: relative;
             background: #1e293b;
             border-radius: 12px;
-padding:22px 8px 12px 8px;
+padding:22px 8px 12px 8px; /* espacio arriba para login */
             text-align: center;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
             display: flex;
@@ -325,13 +325,13 @@ padding:22px 8px 12px 8px;
         0 0 60px rgba(239,68,68,0.4);
     z-index:9999;
     opacity:0;
-    pointer-events:none;
+    pointer-events:none; /* 👈 evita bloquear clics */
     transition:all .25s ease;
 }
 
 .alerta-banio.show{
     opacity:1;
-    pointer-events:auto;
+    pointer-events:auto; /* 👈 solo cuando se muestra */
 }
 
 .alerta-banio.show{
@@ -364,6 +364,7 @@ color:#f87171;
     <h1></h1>
     <div class="contenedor" id="contenedor"></div>
 
+    <!-- menú flotante -->
     <div id="menuGlobal" class="menu-radial" aria-hidden="true">
         <button class="btn-libre" title="Marcar Libre">✔</button>
         <button class="btn-banio" title="Marcar Baño">🚻</button>
@@ -394,39 +395,179 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+let desfaseServidor = 0;
 const refLogins = collection(db,"agentes_sabado");
 const nombres = ["Nestor", "Daniel", "Andres", "Rafael", "Alejandro", "Tania", "Marta", "Pablo", "Saraí", "Michi", "Evelyn", "Merlin", "Ashley", "Gabriela","Bryan","Diego","Jorge","Joselyne","Andrea","Omar","Javier","Synndy","Anthony","Mildred","Madelin","Majo","Monica","Jackeline",];
 const agentes = [
-{ nombre:"Saraí", ext:"8001", horario:"07:00" },
-{ nombre:"Gabriela", ext:"8002", horario:"09:00" },
-{ nombre:"Javier", ext:"8003", horario:"07:00" },
-{ nombre:"Monica", ext:"8005", horario:"09:00" },
-{ nombre:"Alejandro", ext:"8006", horario:"07:00" },
-{ nombre:"Joselyne", ext:"8007", horario:"09:00" },
-{ nombre:"Jackeline", ext:"8008", horario:"07:00" },
-{ nombre:"Mildred", ext:"8009", horario:"07:00" },
-{ nombre:"Tania", ext:"8010", horario:"07:00" },
-{ nombre:"Anthony", ext:"8011", horario:"09:00" },
-{ nombre:"Jorge", ext:"8013", horario:"09:00" },
-{ nombre:"Nestor", ext:"8015", horario:"07:00" },
-{ nombre:"Andrea", ext:"8016", horario:"09:00" },
-{ nombre:"Diego", ext:"8017", horario:"09:00" },
-{ nombre:"Ashley", ext:"8018", horario:"07:00" },
-{ nombre:"Synndy", ext:"8020", horario:"09:00" },
-{ nombre:"Michi", ext:"8021", horario:"07:00" },
-{ nombre:"Omar", ext:"8022",horario:"08:00"},
-{ nombre:"Madelin", ext:"8023", horario:"09:00" },
-{ nombre:"Evelyn", ext:"8024", horario:"07:00" },
-{ nombre:"Bryan", ext:"8026", horario:"09:00" },
-{ nombre:"Rafael", ext:"8027", horario:"07:00" },
-{ nombre:"Marta", ext:"8028", horario:"07:00" },
-{ nombre:"Pablo", ext:"8029", horario:"07:00" },
-{ nombre:"Majo", ext:"8030", horario:"09:00" }
+
+{ nombre:"Sarahi Churumia", ext:8001,
+days:{
+1:"09:00",
+2:"09:00",
+3:"09:00",
+4:"10:00",
+5:"10:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Justa Jaes", ext:8002, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Javier Alvarez", ext:8003, default:"08:00", sabado:"07:00" },
+
+{ nombre:"Merlin Bajan", ext:8004, default:"08:00", sabado:null },
+
+{ nombre:"Mónica Ordónez", ext:8005, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Alejandro Vásquez", ext:8006,
+days:{
+1:"08:00",
+2:"08:00",
+3:"08:00",
+4:"08:00",
+5:"08:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Joselyne Velásquez", ext:8007, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Jackeline Castillo", ext:8008,
+days:{
+1:"10:00",
+2:"10:00",
+3:"09:00",
+4:"09:00",
+5:"09:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Mildred Cordero", ext:8009, default:"08:00", sabado:"09:00" },
+
+{ nombre:"Tania de León", ext:8010,
+days:{
+1:"09:00",
+2:"09:00",
+3:"09:00",
+4:"10:00",
+5:"10:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Anthony García", ext:8011, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Jorge Veliz", ext:8013, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Daniel Coyoy", ext:8014, default:"08:00", sabado:null },
+
+{ nombre:"Néstor Galvez", ext:8015,
+days:{
+1:"10:00",
+2:"10:00",
+3:"09:00",
+4:"09:00",
+5:"09:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Andrea Jiménez", ext:8016, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Diego Chiché", ext:8017, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Ashley López", ext:8018, default:"08:00", sabado:"07:00" },
+
+{ nombre:"Synndy Sanchez", ext:8020, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Mishell de León", ext:8021,
+days:{
+1:"10:00",
+2:"10:00",
+3:"09:00",
+4:"09:00",
+5:"09:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Omar Ramirez", ext:8022, default:"09:00", sabado:"08:00" },
+
+{ nombre:"Madelin Ovando", ext:8023, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Evelyn de León", ext:8024,
+days:{
+1:"10:00",
+2:"10:00",
+3:"09:00",
+4:"09:00",
+5:"09:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Andres Marín", ext:8025, default:"08:00", sabado:null },
+
+{ nombre:"Bryan Hernandez", ext:8026, default:"09:00", sabado:"09:00" },
+
+{ nombre:"Rafael Sánchez", ext:8027,
+days:{
+1:"09:00",
+2:"09:00",
+3:"09:00",
+4:"10:00",
+5:"10:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Marta Morales", ext:8028,
+days:{
+1:"10:00",
+2:"10:00",
+3:"09:00",
+4:"09:00",
+5:"09:00",
+6:"07:00"
+}
+},
+
+{ nombre:"Pablo Ibañez", ext:8029,
+days:{
+1:"08:00",
+2:"08:00",
+3:"08:00",
+4:"08:00",
+5:"08:00",
+6:"07:00"
+}
+},
+
+{ nombre:"María Perdomo", ext:8030, default:"09:00", sabado:"09:00" }
+
 ];
+
+function obtenerHorarioAgente(agente){
+
+const hoy = new Date().getDay();
+
+if(agente.days){
+return agente.days[hoy];
+}
+
+if(hoy === 6){
+return agente.sabado;
+}
+
+return agente.default;
+
+}
 const extensiones = {
 Saraí:"8001",
 Gabriela:"8002",
 Javier:"8003",
+Merlin:"8004",
 Monica:"8005",
 Alejandro:"8006",
 Joselyne:"8007",
@@ -435,6 +576,7 @@ Mildred:"8009",
 Tania:"8010",
 Anthony:"8011",
 Jorge:"8013",
+Daniel:"8014",
 Nestor:"8015",
 Andrea:"8016",
 Diego:"8017",
@@ -444,6 +586,7 @@ Michi:"8021",
 Omar:"8022",
 Madelin:"8023",
 Evelyn:"8024",
+Andres:"8025",
 Bryan:"8026",
 Rafael:"8027",
 Marta:"8028",
@@ -622,7 +765,6 @@ if (tipo === "baño") {
 
 const info = tarjetas[nombre].info || { tipo:null, inicio:null, tiempoBanio:0, tiempoAlmuerzo:0 };
 
-const ahora = Date.now();
 
 const inicioMs = (val)=>{
   if(!val && val!==0) return null;
@@ -637,8 +779,7 @@ let acAlmuerzo = info.tiempoAlmuerzo || 0;
 if(info.tipo){
 
   const ini = inicioMs(info.inicio);
-  const segs = ini ? Math.floor((ahora - ini)/1000) : 0;
-
+const segs = ini ? Math.floor((Date.now() - ini)/1000) : 0;
   if(info.tipo==="baño") acBanio += segs;
   if(info.tipo==="almuerzo") acAlmuerzo += segs;
 
@@ -653,7 +794,7 @@ if(tipo === info.tipo || tipo === null){
 await updateDoc(refBanio,{
   [nombre]:{
     tipo:nuevoTipo,
-    inicio:nuevoTipo ? ahora : null,
+inicio:nuevoTipo ? Date.now() : null,
     tiempoBanio:acBanio,
     tiempoAlmuerzo:acAlmuerzo
   }
@@ -664,6 +805,12 @@ await updateDoc(refBanio,{
 
 onSnapshot(refBanio,(docSnap)=>{
 
+if(docSnap.metadata.hasPendingWrites === false){
+  const tiempoServidor = docSnap.updateTime?.toMillis?.();
+  if(tiempoServidor){
+    desfaseServidor = tiempoServidor - Date.now();
+  }
+}
 const data = docSnap.data();
 
 nombres.forEach(nombre=>{
@@ -690,15 +837,13 @@ if(info.tipo){
 });
 
 setInterval(() => {
-  const ahora = Date.now();
-  nombres.forEach(nombre => {
+const ahora = Date.now() + desfaseServidor;  nombres.forEach(nombre => {
     const info = tarjetas[nombre].info;
     if (!info) return;
     let tBanio = info.tiempoBanio || 0, tAlmuerzo = info.tiempoAlmuerzo || 0;
-    const inicioVal = info.inicio;
-    const inicioMs = (inicioVal && inicioVal.toMillis) ? inicioVal.toMillis() : (typeof inicioVal === "number" ? inicioVal : null);
-    if (info.tipo === "baño" && inicioMs) tBanio += Math.floor((ahora - inicioMs) / 1000);
-    if (info.tipo === "almuerzo" && inicioMs) tAlmuerzo += Math.floor((ahora - inicioMs) / 1000);
+const inicioMs = info.inicio || null;
+    if (info.tipo === "baño" && inicioMs)tBanio += Math.max(0, Math.floor((ahora - inicioMs) / 1000));
+    if (info.tipo === "almuerzo" && inicioMs) tAlmuerzo += Math.max(0, Math.floor((ahora - inicioMs) / 1000));
     const minB = Math.floor(tBanio / 60), secB = tBanio % 60;
     const minA = Math.floor(tAlmuerzo / 60), secA = tAlmuerzo % 60;
     tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class="cronometro">${minB}:${secB.toString().padStart(2, "0")}</span>`;
@@ -722,6 +867,7 @@ if(!cantidad || cantidad < 1){
 
 try{
 
+// guardar historial
 await addDoc(collection(db,"llamadas_test"),{
   agente:nombre,
   tipo:tipo,
@@ -733,8 +879,10 @@ await addDoc(collection(db,"llamadas_test"),{
 const extension = extensiones[nombre];
 
 // referencia agente
-const refAgente = doc(db,"agentes_sabado",extension);
+const hoy = new Date().toISOString().split("T")[0];
+const refAgente = doc(db,"agentes_sabado",`${extension}_${hoy}`);
 
+// actualizar contador
 if(tipo === "Entrante"){
 
 await updateDoc(refAgente,{
@@ -794,8 +942,10 @@ tarjetas[nombre].estadisticas.textContent =
 onSnapshot(collection(db,"agentes_sabado"), (snapshot)=>{
 
 snapshot.forEach(docSnap=>{
+const hoy = new Date().toISOString().split("T")[0];
+if(!docSnap.id.endsWith(hoy)) return;
 
-const extension = docSnap.id;
+const extension = docSnap.id.split("_")[0];
 const data = docSnap.data();
 
 const nombre = Object.keys(extensiones).find(n => extensiones[n] === extension);
@@ -808,11 +958,17 @@ const login = data.login || "--";
 tarjetas[nombre].loginSpan.textContent = login;
 const agente = agentes.find(a => a.ext == extension);
 
-if(agente && agente.horario && login !== "--"){
+if(agente && login !== "--"){
 
 const loginMin = login.split(":")[0]*60 + login.split(":")[1]*1;
-const horarioMin = agente.horario.split(":")[0]*60 + agente.horario.split(":")[1]*1;
+const horario = obtenerHorarioAgente(agente);
 
+if(!horario){
+return; // el agente no trabaja hoy
+}
+
+const partes = horario.split(":");
+const horarioMin = partes[0]*60 + partes[1]*1;
 tarjetas[nombre].loginSpan.classList.remove("login-puntual","login-tarde");
 
 if(loginMin > horarioMin){

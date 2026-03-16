@@ -1,1097 +1,1033 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>EIS</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/1302/1302539.png" type="image/png">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a;
-            color: #f1f5f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 95vh;
-            margin: 0;
-            padding: 10px;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard — Agentes Sabatino</title>
+  <style>
+    :root {
+      --bg: #08101a;
+      --panel: #0e1720;
+      --card: #0f1a24;
+      --card-2: #111827;
+      --accent: #f59e0b;
+      /* naranja/amarillo */
+      --accent-2: #ffb86b;
+      --muted: #9aa6b2;
+      --glass: rgba(255, 255, 255, 0.04);
+      --green: #16a34a;
+      --red: #ef4444;
+      --text: #e6eef8;
+    }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 30px;
-            font-weight: 700;
-            color: #fff;
-        }
+    * {
+      box-sizing: border-box;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial
+    }
 
-        .contenedor {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            justify-content: center;
-            align-items: start;
-            width: 100%;
-            max-width: 1400px;
-        }
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: linear-gradient(180deg, #071026 0%, #07111b 100%);
+      color: var(--text)
+    }
 
-        .tarjeta {
-            position: relative;
-            background: #1e293b;
-            border-radius: 12px;
-padding:22px 8px 12px 8px; /* espacio arriba para login */
-            text-align: center;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.15s ease, box-shadow 0.2s ease;
-            cursor: pointer;
-            overflow: visible;
-        }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.01), transparent)
+    }
 
-        .tarjeta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
-        }
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      font-weight: 800
+    }
 
-        .flip {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
 
-        .frontal,
-        .trasera {
-            backface-visibility: hidden;
-            transition: opacity 0.3s ease;
-            width: 100%;
-        }
+    .select,
+    .input {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      padding: 8px;
+      border-radius: 8px
+    }
 
-        .frontal.active {
-            opacity: 1;
-            z-index: 2;
-            position: relative;
-        }
+    .btn {
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      border: none;
+      color: #08101a;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 800
+    }
 
-        .frontal {
-            opacity: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--muted)
+    }
 
-        .trasera.active {
-            opacity: 1;
-            z-index: 2;
-            position: relative;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 18px auto;
+      padding: 12px
+    }
 
-        .trasera {
-            opacity: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            max-height: 132px;
-        }
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px
+    }
 
-        .nombre {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #fff;
-        }
+    .search {
+      flex: 1;
+      min-width: 180px
+    }
 
-        .estado {
-            display: inline-block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            padding: 5px 12px;
-            border-radius: 9999px;
-            text-align: center;
-            color: #fff;
-        }
+    /* grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px
+    }
 
-        .estado.libre {
-            background: #16a34a;
-        }
+    /* card */
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+      transition: transform .15s, box-shadow .15s
+    }
 
-        .estado.ocupado {
-            background: #facc15;
-            color: #1e293b;
-            animation: pulse 1.2s infinite;
-        }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.7)
+    }
 
-        .estado.excedido {
-            background: #ef4444;
-            color: #fff;
-            animation: pulse 1.2s infinite;
-        }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #242f3a, #16324a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: var(--accent);
+      box-shadow: inset 0 -6px 18px rgba(0, 0, 0, 0.4)
+    }
 
-            50% {
-                transform: scale(1.05);
-            }
+    .agent {
+      font-weight: 800
+    }
 
-            100% {
-                transform: scale(1);
-            }
-        }
+    .ext {
+      font-size: 12px;
+      color: var(--muted)
+    }
 
-        .tiempo {
-            font-size: 14px;
-            margin: 2px 0;
-            color: #fff;
-            font-weight: 500;
-        }
+    .state {
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
 
-        .tiempo span.cronometro {
-            color: #facc15;
-            font-weight: 700;
-        }
+    .stat .value {
+      font-weight: 900;
+      font-size: 16px;
+    }
 
-        .menu-radial {
-            position: fixed;
-            transform: translate(-50%, -50%) scale(0);
-            transition: transform 0.25s ease;
-            pointer-events: none;
-            z-index: 2000;
-        }
+    .stats {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px
+    }
 
-        .menu-radial.active {
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
+    .stat {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center
+    }
 
-        .menu-radial button {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            border: none;
-            border-radius: 25%;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 25px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-        }
+    .stat .label {
+      font-size: 12px;
+      color: var(--muted)
+    }
 
-        .menu-radial button:hover {
-            transform: scale(1.15);
-            box-shadow: 0 0 14px rgba(0, 0, 0, 0.6);
-        }
+    .stat .value {
+      font-weight: 800;
+      margin-top: 4px
+    }
 
-        .btn-libre {
-            background: #22c55e;
-            top: -55px;
-            left: -20px;
-            box-shadow: 0 0 14px rgba(34, 197, 94, 0.8);
-        }
+    .note {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--muted);
+      font-size: 13px
+    }
 
-        .btn-banio {
-            background: #facc15;
-            color: #1e293b;
-            top: 15px;
-            left: -65px;
-            font-size: 14px;
-            box-shadow: 0 0 10px rgba(253, 224, 71, 0.8);
-        }
+    /* colorful left border to distinguish cards */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      border-radius: 12px 0 0 12px;
+      background: linear-gradient(180deg, var(--accent), #ff8c42);
+      transform: translateX(-8px);
+      opacity: 0.95
+    }
 
-        .btn-almuerzo {
-            background: #facc15;
-            top: 15px;
-            left: 25px;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-        }
+    .card-wrap {
+      position: relative
+    }
 
-        .tarjeta.dimmed {
-            filter: brightness(0.5);
-            transform: scale(0.97);
-        }
+    /* right panel */
+    .panel {
+      position: fixed;
+      right: 18px;
+      top: 80px;
+      width: 380px;
+      max-width: 92%;
+      background: linear-gradient(180deg, #071028, #0b1224);
+      border-radius: 12px;
+      padding: 14px;
+      border-left: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 1200
+    }
 
-        .icon-telefono {
-            position: absolute;
-            top: 0px;
-            right: 5px;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 3;
-        }
+    .panel.show {
+      display: block
+    }
 
-        .regresar {
-            position: relative;
-            top: 0px;
-            right: -70px;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 3;
-        }
+    .panel .title {
+      font-weight: 800
+    }
 
+    .panel .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px
+    }
 
-        .registro {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            margin-top: 10px;
-            width: 100%;
-        }
+    /* modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1400
+    }
 
-        .registro input,
-        .registro select {
-            padding: 4px;
-            border-radius: 6px;
-            border: none;
-            width: 100%;
-            height: 23px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
+    .overlay.show {
+      display: flex
+    }
 
-        .botones {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 5px;
-        }
+    .modal {
+      width: 720px;
+      max-width: 94%;
+      background: linear-gradient(180deg, #0b1220, #071028);
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6)
+    }
 
-        .botones button {
-            width: 35px;
-            height: 35px;
-            border: none;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px;
-        }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
 
-        .btn-check {
-            background: #16a34a;
-            color: white;
-        }
+    .form-row {
+      display: flex;
+      gap: 12px
+    }
 
-        .btn-x {
-            background: #ef4444;
-            color: white;
-        }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
 
-        .estadisticas {
-            font-size: 12px;
-            margin-top: 4px;
-            color: #f1f5f9;
-            font-weight: 500;
-        }
-.overlay-banio{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.65);
-    backdrop-filter: blur(3px);
-    z-index:9998;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease;
-}
+    .input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: transparent;
+      color: var(--text)
+    }
 
-.overlay-banio.show{
-    opacity:1;
-}
+    textarea {
+      min-height: 100px
+    }
 
-.alerta-banio{
-    position:fixed;
-    top:10%;
-    left:50%;
-    transform:translate(-50%,-50%) scale(.8);
-    background:#111827;
-    color:white;
-    padding:28px 40px;
-    border-radius:14px;
-    font-size:22px;
-    font-weight:700;
-    text-align:center;
-    border:3px solid #ef4444;
-    box-shadow:
-        0 0 20px rgba(239,68,68,0.8),
-        0 0 60px rgba(239,68,68,0.4);
-    z-index:9999;
-    opacity:0;
-    pointer-events:none; /* 👈 evita bloquear clics */
-    transition:all .25s ease;
-}
+    /* specifically space out salientes/entrantes to avoid amontonado */
+    .counter-row {
+      display: flex;
+      gap: 12px
+    }
 
-.alerta-banio.show{
-    opacity:1;
-    pointer-events:auto; /* 👈 solo cuando se muestra */
-}
+    .counter {
+      flex: 1;
+      background: linear-gradient(180deg, #07111a, #091525);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      flex-direction: column;
+      align-items: center
+    }
 
-.alerta-banio.show{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1);
-}
-.login-superior{
-position:absolute;
-top:-15px;
-left:8px;
-font-size:12px;
-font-weight:600;
-padding:2px 6px;
-border-radius:5px;
-}
+    .counter label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px
+    }
 
-.login-puntual{
-background:#052e16;
-color:#4ade80;
-}
+    .counter input {
+      width: 100%;
+      text-align: center;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: transparent;
+      color: var(--text)
+    }
 
-.login-tarde{
-background:#450a0a;
-color:#f87171;
-}
-    </style>
+    /* responsive modal layout for small screens */
+    @media (max-width:800px) {
+      .modal {
+        width: 95%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* pdf controls small */
+    .pdf-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .small-muted {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    select option {
+      background: #0b1224;
+      color: #ffffff;
+    }
+
+    select:focus {
+      outline: none;
+      border: 1px solid var(--accent);
+    }
+
+    select option:checked {
+      background: #1e293b;
+      color: #ffffff;
+    }
+
+    select:focus {
+      outline: none;
+      border: 1px solid var(--accent);
+    }
+
+    select option:checked {
+      background: #1e293b;
+      color: #ffffff;
+    }
+  </style>
 </head>
 
 <body>
-    <h1></h1>
-    <div class="contenedor" id="contenedor"></div>
-
-    <!-- menú flotante -->
-    <div id="menuGlobal" class="menu-radial" aria-hidden="true">
-        <button class="btn-libre" title="Marcar Libre">✔</button>
-        <button class="btn-banio" title="Marcar Baño">🚻</button>
-        <button class="btn-almuerzo" title="Marcar Almuerzo">🍔</button>
+  <header>
+    <div style="display:flex;gap:12px;align-items:center">
+      <h1>Agentes Sabatino — Dashboard</h1>
+    </div>
+    <div class="header-right">
+      <div class="pdf-controls">
+        <select id="pdfAgentFilter" class="select">
+          <option value="all">Todos</option>
+        </select>
+        <input id="pdfDateFrom" type="date" class="input" />
+        <input id="pdfDateTo" type="date" class="input" />
+        <button id="downloadPdfBtn" class="btn">Descargar PDF</button>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <div class="controls">
+      <input id="searchInput" class="input search" placeholder="Buscar por nombre o extensión..." />
+      <select id="filterSelect" class="select">
+        <option value="all">Todos</option>
+        <option value="puntual">Puntuales</option>
+        <option value="leve">Leves (≤5 min)</option>
+        <option value="retraso">Retraso (&gt;5 min)</option>
+        <option value="sinmarcar">Sin marcar</option>
+      </select>
+      <label class="small-muted">Compact</label>
+      <input type="checkbox" id="compactCheckbox" />
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <div class="small-muted">Shift+R para registrar/editar</div>
+        <button id="floatingBtn" class="btn">Registrar</button>
+      </div>
     </div>
 
-    <script type="module">
-      import { increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-import { 
-  initializeApp 
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-
-import { 
-  getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, where, 
-  getDocs, addDoc, serverTimestamp, deleteDoc 
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDeAbygOcoV1G9Zh8wd7topjXttlmJ892Y",
-  authDomain: "workplace-18675.firebaseapp.com",
-  projectId: "workplace-18675",
-  storageBucket: "workplace-18675.appspot.com",
-  messagingSenderId: "606737102100",
-  appId: "1:606737102100:web:7084120bdabf1f8ca2be01"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-let desfaseServidor = 0;
-const refLogins = collection(db,"agentes_sabado");
-const nombres = ["Nestor", "Daniel", "Andres", "Rafael", "Alejandro", "Tania", "Marta", "Pablo", "Saraí", "Michi", "Evelyn", "Merlin", "Ashley", "Gabriela","Bryan","Diego","Jorge","Joselyne","Andrea","Omar","Javier","Synndy","Anthony","Mildred","Madelin","Majo","Monica","Jackeline",];
-const agentes = [
-
-{ nombre:"Sarahi Churumia", ext:8001,
-days:{
-1:"09:00",
-2:"09:00",
-3:"09:00",
-4:"10:00",
-5:"10:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Justa Jaes", ext:8002, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Javier Alvarez", ext:8003, default:"08:00", sabado:"07:00" },
-
-{ nombre:"Merlin Bajan", ext:8004, default:"08:00", sabado:null },
-
-{ nombre:"Mónica Ordónez", ext:8005, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Alejandro Vásquez", ext:8006,
-days:{
-1:"08:00",
-2:"08:00",
-3:"08:00",
-4:"08:00",
-5:"08:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Joselyne Velásquez", ext:8007, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Jackeline Castillo", ext:8008,
-days:{
-1:"10:00",
-2:"10:00",
-3:"09:00",
-4:"09:00",
-5:"09:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Mildred Cordero", ext:8009, default:"08:00", sabado:"09:00" },
-
-{ nombre:"Tania de León", ext:8010,
-days:{
-1:"09:00",
-2:"09:00",
-3:"09:00",
-4:"10:00",
-5:"10:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Anthony García", ext:8011, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Jorge Veliz", ext:8013, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Daniel Coyoy", ext:8014, default:"08:00", sabado:null },
-
-{ nombre:"Néstor Galvez", ext:8015,
-days:{
-1:"10:00",
-2:"10:00",
-3:"09:00",
-4:"09:00",
-5:"09:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Andrea Jiménez", ext:8016, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Diego Chiché", ext:8017, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Ashley López", ext:8018, default:"08:00", sabado:"07:00" },
-
-{ nombre:"Synndy Sanchez", ext:8020, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Mishell de León", ext:8021,
-days:{
-1:"10:00",
-2:"10:00",
-3:"09:00",
-4:"09:00",
-5:"09:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Omar Ramirez", ext:8022, default:"09:00", sabado:"08:00" },
-
-{ nombre:"Madelin Ovando", ext:8023, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Evelyn de León", ext:8024,
-days:{
-1:"10:00",
-2:"10:00",
-3:"09:00",
-4:"09:00",
-5:"09:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Andres Marín", ext:8025, default:"08:00", sabado:null },
-
-{ nombre:"Bryan Hernandez", ext:8026, default:"09:00", sabado:"09:00" },
-
-{ nombre:"Rafael Sánchez", ext:8027,
-days:{
-1:"09:00",
-2:"09:00",
-3:"09:00",
-4:"10:00",
-5:"10:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Marta Morales", ext:8028,
-days:{
-1:"10:00",
-2:"10:00",
-3:"09:00",
-4:"09:00",
-5:"09:00",
-6:"07:00"
-}
-},
-
-{ nombre:"Pablo Ibañez", ext:8029,
-days:{
-1:"08:00",
-2:"08:00",
-3:"08:00",
-4:"08:00",
-5:"08:00",
-6:"07:00"
-}
-},
-
-{ nombre:"María Perdomo", ext:8030, default:"09:00", sabado:"09:00" }
-
-];
-
-function obtenerHorarioAgente(agente){
-
-const hoy = new Date().getDay();
-
-if(agente.days){
-return agente.days[hoy];
-}
-
-if(hoy === 6){
-return agente.sabado;
-}
-
-return agente.default;
-
-}
-const extensiones = {
-Saraí:"8001",
-Gabriela:"8002",
-Javier:"8003",
-Merlin:"8004",
-Monica:"8005",
-Alejandro:"8006",
-Joselyne:"8007",
-Jackeline:"8008",
-Mildred:"8009",
-Tania:"8010",
-Anthony:"8011",
-Jorge:"8013",
-Daniel:"8014",
-Nestor:"8015",
-Andrea:"8016",
-Diego:"8017",
-Ashley:"8018",
-Synndy:"8020",
-Michi:"8021",
-Omar:"8022",
-Madelin:"8023",
-Evelyn:"8024",
-Andres:"8025",
-Bryan:"8026",
-Rafael:"8027",
-Marta:"8028",
-Pablo:"8029",
-Majo:"8030"
-}
-
-const LIMITE = { baño: 15 * 60, almuerzo: 60 * 60 };
-const refBanio = doc(db, "callcenter", "estado");
-const contenedor = document.getElementById("contenedor");
-const tarjetas = {};
-const menuGlobal = document.getElementById("menuGlobal");
-function mostrarAlertaBanio() {
-  const alerta = document.getElementById("alertaBanio");
-  alerta.classList.add("show");
-
-  setTimeout(() => {
-    alerta.classList.remove("show");
-  }, 2500);
-}
-let tarjetaActiva = null;
-
-nombres.forEach(nombre => {
-  const tarjeta = document.createElement("div");
-  tarjeta.className = "tarjeta";
-
-  const flip = document.createElement("div");
-  flip.className = "flip";
-
-  const frontal = document.createElement("div");
-  frontal.className = "frontal active";
-
-  const spanNombre = document.createElement("div");
-  spanNombre.className = "nombre";
-  spanNombre.textContent = nombre;
-const loginSpan = document.createElement("div");
-loginSpan.className = "login-superior";
-loginSpan.textContent = "--";
-  const estado = document.createElement("div");
-  estado.className = "estado libre";
-  estado.textContent = "Libre";
-
-  const tiempoBanio = document.createElement("div");
-  tiempoBanio.className = "tiempo";
-  tiempoBanio.innerHTML = `Baño: <span class="cronometro">0:00</span>`;
-
-  const tiempoAlmuerzo = document.createElement("div");
-  tiempoAlmuerzo.className = "tiempo";
-  tiempoAlmuerzo.innerHTML = `Almuerzo: <span class="cronometro">0:00</span>`;
-
-  const estadisticas = document.createElement("div");
-  estadisticas.className = "estadisticas";
-  estadisticas.textContent = "📞⬅️| 📞➡️";
-
-  const iconTelefono = document.createElement("div");
-  iconTelefono.className = "icon-telefono";
-  iconTelefono.textContent = "📞";
-
-frontal.append(spanNombre, loginSpan, estado, tiempoBanio, tiempoAlmuerzo, estadisticas, iconTelefono);
-
-  const trasera = document.createElement("div");
-  trasera.className = "trasera";
-
-  const iconBanio = document.createElement("div");
-  iconBanio.className = "regresar";
-  iconBanio.textContent = "🚻";
-
-  const registro = document.createElement("div");
-  registro.className = "registro";
-
-
-const selectTipo = document.createElement("select");
-
-["Entrante","Saliente"].forEach(tipo=>{
-  const opt=document.createElement("option");
-  opt.value=tipo;
-  opt.textContent=tipo;
-  selectTipo.appendChild(opt);
-});
-
-
-const inputCantidad = document.createElement("input");
-inputCantidad.type = "number";
-inputCantidad.min = "1";
-inputCantidad.value = "1";
-inputCantidad.placeholder = "Cantidad";
-
-  const botones = document.createElement("div");
-  botones.className = "botones";
-  const btnCheck = document.createElement("button"); 
-  btnCheck.className = "btn-check"; 
-  btnCheck.textContent = "✅";
-  const btnX = document.createElement("button"); 
-  btnX.className = "btn-x"; 
-  btnX.textContent = "❌";
-  botones.append(btnX, btnCheck);
-
-registro.append(selectTipo, inputCantidad, botones);  trasera.append(iconBanio, registro);
-  flip.append(frontal, trasera);
-  tarjeta.appendChild(flip);
-  contenedor.appendChild(tarjeta);
-
-tarjetas[nombre] = { 
-estado,
-tiempoBanio,
-tiempoAlmuerzo,
-loginSpan,
-info:{},
-estadisticas,
-frontal,
-trasera,
-selectTipo,
-inputCantidad,
-btnCheck
-};
-  iconTelefono.onclick = e => {
-    e.stopPropagation();
-    frontal.classList.remove("active");
-    trasera.classList.add("active");
-  };
-  iconBanio.onclick = e => {
-    e.stopPropagation();
-    trasera.classList.remove("active");
-    frontal.classList.add("active");
-  };
-
-  btnCheck.onclick = () => registrarLlamada(nombre);
-btnX.style.display = "none";
-
-  registro.addEventListener("click", e => { e.stopPropagation(); });
-
-  tarjeta.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (trasera.classList.contains("active")) return;
-    document.querySelectorAll(".tarjeta").forEach(t => t.classList.remove("dimmed"));
-    menuGlobal.classList.remove("active");
-    const rect = tarjeta.getBoundingClientRect();
-    menuGlobal.style.top = `${rect.top + rect.height / 2}px`;
-    menuGlobal.style.left = `${rect.left + rect.width / 2}px`;
-    tarjeta.classList.add("dimmed");
-    tarjetaActiva = nombre;
-    menuGlobal.classList.add("active");
-    menuGlobal.setAttribute("aria-hidden", "false");
-  });
-});
-
-document.addEventListener("click", () => {
-  menuGlobal.classList.remove("active");
-  menuGlobal.setAttribute("aria-hidden", "true");
-  document.querySelectorAll(".tarjeta").forEach(t => t.classList.remove("dimmed"));
-  tarjetaActiva = null;
-});
-
-menuGlobal.querySelector(".btn-libre").onclick = () => accionMenu(tarjetaActiva, null);
-menuGlobal.querySelector(".btn-banio").onclick = () => accionMenu(tarjetaActiva, "baño");
-menuGlobal.querySelector(".btn-almuerzo").onclick = () => accionMenu(tarjetaActiva, "almuerzo");
-
-async function accionMenu(nombre, tipo) {
-  if (!nombre) return;
-  await toggleEstado(nombre, tipo);
-}
-
-async function toggleEstado(nombre, tipo){
-
-if (tipo === "baño") {
-  let contador = 0;
-  nombres.forEach(n => {
-    if (tarjetas[n].info?.tipo === "baño") contador++;
-  });
-
-  if (contador >= 2) {
-    mostrarAlertaBanio();
-    return;
-  }
-}
-
-const info = tarjetas[nombre].info || { tipo:null, inicio:null, tiempoBanio:0, tiempoAlmuerzo:0 };
-
-
-const inicioMs = (val)=>{
-  if(!val && val!==0) return null;
-  if(typeof val==="number") return val;
-  if(val.toMillis) return val.toMillis();
-  return null;
-};
-
-let acBanio = info.tiempoBanio || 0;
-let acAlmuerzo = info.tiempoAlmuerzo || 0;
-
-if(info.tipo){
-
-  const ini = inicioMs(info.inicio);
-const segs = ini ? Math.floor((Date.now() - ini)/1000) : 0;
-  if(info.tipo==="baño") acBanio += segs;
-  if(info.tipo==="almuerzo") acAlmuerzo += segs;
-
-}
-
-let nuevoTipo = tipo;
-
-if(tipo === info.tipo || tipo === null){
-  nuevoTipo = null;
-}
-
-await updateDoc(refBanio,{
-  [nombre]:{
-    tipo:nuevoTipo,
-inicio:nuevoTipo ? Date.now() : null,
-    tiempoBanio:acBanio,
-    tiempoAlmuerzo:acAlmuerzo
-  }
-});
-
-}
-
-
-onSnapshot(refBanio,(docSnap)=>{
-
-if(docSnap.metadata.hasPendingWrites === false){
-  const tiempoServidor = docSnap.updateTime?.toMillis?.();
-  if(tiempoServidor){
-    desfaseServidor = tiempoServidor - Date.now();
-  }
-}
-const data = docSnap.data();
-
-nombres.forEach(nombre=>{
-
-if(!tarjetas[nombre]) return;
-
-const info = data?.[nombre];
-
-if(!info) return;
-
-tarjetas[nombre].info = info;
-
-if(info.tipo){
-  tarjetas[nombre].estado.textContent =
-    info.tipo === "baño" ? "En Baño" : "Almorzando";
-  tarjetas[nombre].estado.className="estado ocupado";
-}else{
-  tarjetas[nombre].estado.textContent="Libre";
-  tarjetas[nombre].estado.className="estado libre";
-}
-
-});
-
-});
-
-setInterval(() => {
-const ahora = Date.now() + desfaseServidor;  nombres.forEach(nombre => {
-    const info = tarjetas[nombre].info;
-    if (!info) return;
-    let tBanio = info.tiempoBanio || 0, tAlmuerzo = info.tiempoAlmuerzo || 0;
-const inicioMs = info.inicio || null;
-    if (info.tipo === "baño" && inicioMs)tBanio += Math.max(0, Math.floor((ahora - inicioMs) / 1000));
-    if (info.tipo === "almuerzo" && inicioMs) tAlmuerzo += Math.max(0, Math.floor((ahora - inicioMs) / 1000));
-    const minB = Math.floor(tBanio / 60), secB = tBanio % 60;
-    const minA = Math.floor(tAlmuerzo / 60), secA = tAlmuerzo % 60;
-    tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class="cronometro">${minB}:${secB.toString().padStart(2, "0")}</span>`;
-    tarjetas[nombre].tiempoAlmuerzo.innerHTML = `Almuerzo: <span class="cronometro">${minA}:${secA.toString().padStart(2, "0")}</span>`;
-    if (info.tipo === "baño" && tBanio > LIMITE.baño) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Baño excedido"; }
-    if (info.tipo === "almuerzo" && tAlmuerzo > LIMITE.almuerzo) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Almuerzo excedido"; }
-  });
-}, 1000);
-
-async function registrarLlamada(nombre){
-
-const tar = tarjetas[nombre];
-
-const tipo = tar.selectTipo.value;
-const cantidad = Number(tar.inputCantidad.value);
-
-if(!cantidad || cantidad < 1){
-  alert("Ingrese una cantidad válida");
-  return;
-}
-
-try{
-
-// guardar historial
-await addDoc(collection(db,"llamadas_test"),{
-  agente:nombre,
-  tipo:tipo,
-  cantidad:cantidad,
-  timestamp:serverTimestamp()
-});
-
-// buscar extensión
-const extension = extensiones[nombre];
-
-// referencia agente
-const hoy = new Date().toISOString().split("T")[0];
-const refAgente = doc(db,"agentes_sabado",`${extension}_${hoy}`);
-
-// actualizar contador
-if(tipo === "Entrante"){
-
-await updateDoc(refAgente,{
-entrantes: increment(cantidad)
-});
-
-}
-
-if(tipo === "Saliente"){
-
-await updateDoc(refAgente,{
-salientes: increment(cantidad)
-});
-
-}
-
-tar.inputCantidad.value = 1;
-tar.trasera.classList.remove("active");
-tar.frontal.classList.add("active");
-
-
-}catch(e){
-console.error(e);
-}
-
-}
-
-onSnapshot(collection(db, "llamadas_test"), (snapshot) => {
-const llamadasPorAgente = {};
-
-snapshot.forEach((doc)=>{
-
-const data = doc.data();
-
-if(!llamadasPorAgente[data.agente]){
-  llamadasPorAgente[data.agente] = {
-    entrantes:0,
-    salientes:0
-  };
-}
-
-if(data.tipo === "Entrante")
-  llamadasPorAgente[data.agente].entrantes += data.cantidad;
-
-if(data.tipo === "Saliente")
-  llamadasPorAgente[data.agente].salientes += data.cantidad;
-
-});
-
-  nombres.forEach((nombre) => {
-const stats = llamadasPorAgente[nombre] || {entrantes:0, salientes:0};
-
-tarjetas[nombre].estadisticas.textContent =
-`📞⬅️ ${stats.entrantes} | 📞➡️ ${stats.salientes}`;
-  });
-});
-onSnapshot(collection(db,"agentes_sabado"), (snapshot)=>{
-
-snapshot.forEach(docSnap=>{
-const hoy = new Date().toISOString().split("T")[0];
-if(!docSnap.id.endsWith(hoy)) return;
-
-const extension = docSnap.id.split("_")[0];
-const data = docSnap.data();
-
-const nombre = Object.keys(extensiones).find(n => extensiones[n] === extension);
-
-if(!nombre) return;
-
-if(tarjetas[nombre]){
-const login = data.login || "--";
-
-tarjetas[nombre].loginSpan.textContent = login;
-const agente = agentes.find(a => a.ext == extension);
-
-if(agente && login !== "--"){
-
-const loginMin = login.split(":")[0]*60 + login.split(":")[1]*1;
-const horario = obtenerHorarioAgente(agente);
-
-if(!horario){
-return; // el agente no trabaja hoy
-}
-
-const partes = horario.split(":");
-const horarioMin = partes[0]*60 + partes[1]*1;
-tarjetas[nombre].loginSpan.classList.remove("login-puntual","login-tarde");
-
-if(loginMin > horarioMin){
-
-tarjetas[nombre].loginSpan.classList.add("login-tarde");
-
-}else{
-
-tarjetas[nombre].loginSpan.classList.add("login-puntual");
-
-}
-
-}}
-
-});
-
-});
-const btnReset = document.createElement("button");
-btnReset.textContent = "⟳ RESET";
-Object.assign(btnReset.style, {
-  position: "fixed", Top: "10px", right: "80px",
-  padding: "8px 12px", fontSize: "14px", borderRadius: "8px",
-  border: "none", background: "#ef4444", color: "white",
-  cursor: "pointer", opacity: "0", transition: "opacity 0.3s ease", zIndex: "5000"
-});
-document.body.appendChild(btnReset);
-
-const btnExcel = document.createElement("button");
-btnExcel.textContent = "⬇️ EXCEL";
-Object.assign(btnExcel.style, {
-  position: "fixed", top: "10px", right: "177px",
-  padding: "8px 12px", fontSize: "14px", borderRadius: "8px",
-  border: "none", background: "#22c55e", color: "white",
-  cursor: "pointer", opacity: "0", transition: "opacity 0.3s ease", zIndex: "5000"
-});
-document.body.appendChild(btnExcel);
-
-const btnDashboard = document.createElement("button");
-btnDashboard.textContent = "📊 ENCUESTAS  ";
-
-Object.assign(btnDashboard.style, {
-  position: "fixed",
-  top: "10px",
-  right: "280px",
-  padding: "8px 12px",
-  fontSize: "14px",
-  borderRadius: "8px",
-  border: "none",
-  background: "#0d6efd",
-  color: "white",
-  cursor: "pointer",
-  opacity: "0",
-  transition: "opacity 0.3s ease",
-  zIndex: "5000"
-});
-
-btnDashboard.onclick = () => {
-  window.open(
-    "https://firebasestorage.googleapis.com/v0/b/workplace-18675.firebasestorage.app/o/Dashboard%20Encuestas.html?alt=media&token=78d463d1-3957-4d2b-9fdb-e7f435babaff",
-    "_blank"
-  );
-};
-
-
-document.body.appendChild(btnDashboard);
-
-
-document.addEventListener("keydown", (e) => {
-  if (e.shiftKey && e.key.toLowerCase() === ":") {
-    btnReset.style.opacity = btnReset.style.opacity === "1" ? "0" : "1";
-  }
-  if (e.shiftKey && e.key.toLowerCase() === ":") {
-    btnExcel.style.opacity = btnExcel.style.opacity === "1" ? "0" : "1";
-  }
-  if(e.shiftKey && e.key.toLowerCase() === ":") {
-    btnDashboard.style.opacity = btnDashboard.style.opacity === "1" ? "0" : "1";
-  }
-});
-
-btnReset.onclick = async () => {
-  if (!confirm("¿Seguro que deseas REINICIAR todo (tiempos y llamadas)?")) return;
-  nombres.forEach((nombre) => {
-    tarjetas[nombre].info.tiempoBanio = 0;
-    tarjetas[nombre].info.tiempoAlmuerzo = 0;
-    tarjetas[nombre].info.tipo = null;
-    tarjetas[nombre].info.inicio = null;
-    tarjetas[nombre].estado.textContent = "Libre";
-    tarjetas[nombre].estado.className = "estado libre";
-    tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class='cronometro'>0:00</span>`;
-    tarjetas[nombre].tiempoAlmuerzo.innerHTML = `Almuerzo: <span class='cronometro'>0:00</span>`;
-  });
-
-  const resetData = {};
-  nombres.forEach((nombre) => resetData[nombre] = { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 });
-  await updateDoc(refBanio, resetData);
-
-const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));
-  for (const docSnap of llamadasSnapshot.docs) await deleteDoc(doc(db, "llamadas_test", docSnap.id));
-
-  alert("Todo se ha reiniciado correctamente ✅");
-};
-
-btnExcel.onclick = async () => {
-const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));
-  const data = llamadasSnapshot.docs.map(d => {
-    const item = d.data();
-    const fecha = item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : "";
-    return { Agente: item.agente, Numero: item.numero, Respondió: item.respondio ? "✅" : "❌", Fecha: fecha };
-  });
-
-  if (!data.length) return alert("No hay llamadas registradas.");
-
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Llamadas");
-  XLSX.writeFile(wb, `llamadas_salientes_${new Date().toLocaleDateString().replace(/\//g, "-")}.xlsx`);
-};
-
-</script>
-<div id="alertaBanio" class="alerta-banio">
-    Espere a que otro agente regrese del baño
-</div>
-
+    <div id="grid" class="grid" aria-live="polite"></div>
+  </main>
+  <!-- right panel -->
+  <div id="rightPanel" class="panel" aria-hidden="true">
+    <div class="title" id="panelName">Agente</div>
+    <div class="row">
+      <div class="small-muted" id="panelExt">Ext: -</div>
+      <div id="panelState" class="state">Estado</div>
+    </div>
+    <div class="row">
+      <div class="small-muted" id="panelTimes">- • -</div>
+      <div></div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="small-muted">Salientes: <strong id="panelSalientes">0</strong></div>
+      <div class="small-muted">Entrantes: <strong id="panelEntrantes">0</strong></div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="small-muted" style="font-weight:700">Observaciones</div>
+      <div id="panelObs" style="margin-top:6px;color:var(--accent-2);line-height:1.2">Sin observación</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="panelEditBtn" class="btn">Editar
+        (Shift+R)</button></div>
+  </div>
+  <!-- modal -->
+  <div id="overlay" class="overlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 style="margin:0 0 8px 0">Registrar / Editar agente</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="small-muted">Agente</label>
+          <select id="formAgent" class="input"></select>
+        </div>
+        <div class="form-group">
+          <label class="small-muted">Extensión</label>
+          <input id="formExt" class="input" readonly />
+        </div>
+        <div class="form-group">
+          <label class="small-muted">Fecha</label>
+          <input id="formDate" type="date" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="small-muted">Observaciones</label>
+          <textarea id="formObs" class="input"></textarea>
+        </div>
+        <div style="grid-column:1/3">
+          <div class="form-row">
+            <div style="flex:1">
+              <label class="small-muted">Log in</label>
+              <input id="formLogin" type="time" class="input" />
+            </div>
+            <div style="flex:1">
+              <label class="small-muted">Log out</label>
+              <input id="formLogout" type="time" class="input" />
+            </div>
+          </div>
+        </div>
+        <div style="grid-column:1/3">
+          <div class="counter-row">
+            <div class="counter">
+              <label>Salientes</label>
+              <input id="formSalientes" type="number" min="0" />
+            </div>
+            <div class="counter">
+              <label>Entrantes</label>
+              <input id="formEntrantes" type="number" min="0" />
+            </div>
+          </div>
+        </div>
+        <div style="grid-column:1/3;display:flex;justify-content:flex-end;gap:8px;margin-top:6px">
+          <button id="saveBtn" class="btn">Guardar</button>
+          <button id="closeBtn" class="btn ghost">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- libs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    // Firebase — opción B: estructura limpia y consistente (recomendada)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeAbygOcoV1G9Zh8wd7topjXttlmJ892Y",
+      authDomain: "workplace-18675.firebaseapp.com",
+      projectId: "workplace-18675",
+      storageBucket: "workplace-18675.appspot.com",
+      messagingSenderId: "606737102100",
+      appId: "1:606737102100:web:7084120bdabf1f8ca2be01"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const agentes = [
+
+      {
+        nombre: "Sarahi Churumia", ext: 8001,
+        days: {
+          1: "09:00",
+          2: "09:00",
+          3: "09:00",
+          4: "10:00",
+          5: "10:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Justa Jaes", ext: 8002, default: "09:00", sabado: "09:00" },
+
+      { nombre: "Javier Alvarez", ext: 8003, default: "08:00", sabado: "07:00" },
+
+      { nombre: "Merlin Bajan", ext: 8004, default: "08:00", sabado: null },
+
+      { nombre: "Mónica Ordónez", ext: 8005, default: "09:00", sabado: "09:00" },
+
+      {
+        nombre: "Alejandro Vásquez", ext: 8006,
+        days: {
+          1: "09:00",
+          2: "09:00",
+          3: "08:00",
+          4: "08:00",
+          5: "08:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Joselyne Velásquez", ext: 8007, default: "09:00", sabado: "09:00" },
+
+      {
+        nombre: "Jackeline Castillo", ext: 8008,
+        days: {
+          1: "10:00",
+          2: "10:00",
+          3: "09:00",
+          4: "09:00",
+          5: "09:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Mildred Cordero", ext: 8009, default: "08:00", sabado: "09:00" },
+
+      {
+        nombre: "Tania de León", ext: 8010,
+        days: {
+          1: "09:00",
+          2: "09:00",
+          3: "09:00",
+          4: "10:00",
+          5: "10:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Anthony García", ext: 8011, default: "09:00", sabado: "09:00" },
+
+      { nombre: "Jorge Veliz", ext: 8013, default: "09:00", sabado: "09:00" },
+
+      { nombre: "Daniel Coyoy", ext: 8014, default: "08:00", sabado: null },
+
+      {
+        nombre: "Néstor Galvez", ext: 8015,
+        days: {
+          1: "10:00",
+          2: "10:00",
+          3: "09:00",
+          4: "09:00",
+          5: "09:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Andrea Jiménez", ext: 8016, default: "09:00", sabado: "09:00" },
+
+      { nombre: "Diego Chiché", ext: 8017, default: "09:00", sabado: "09:00" },
+
+      { nombre: "Ashley López", ext: 8018, default: "08:00", sabado: "07:00" },
+
+      { nombre: "Synndy Sanchez", ext: 8020, default: "09:00", sabado: "09:00" },
+
+      {
+        nombre: "Mishell de León", ext: 8021,
+        days: {
+          1: "10:00",
+          2: "10:00",
+          3: "09:00",
+          4: "09:00",
+          5: "09:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Omar Ramirez", ext: 8022, default: "09:00", sabado: "08:00" },
+
+      { nombre: "Madelin Ovando", ext: 8023, default: "09:00", sabado: "09:00" },
+
+      {
+        nombre: "Evelyn de León", ext: 8024,
+        days: {
+          1: "10:00",
+          2: "10:00",
+          3: "09:00",
+          4: "09:00",
+          5: "09:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "Andres Marín", ext: 8025, default: "08:00", sabado: null },
+
+      { nombre: "Bryan Hernandez", ext: 8026, default: "09:00", sabado: "09:00" },
+
+      {
+        nombre: "Rafael Sánchez", ext: 8027,
+        days: {
+          1: "09:00",
+          2: "09:00",
+          3: "09:00",
+          4: "10:00",
+          5: "10:00",
+          6: "07:00"
+        }
+      },
+
+      {
+        nombre: "Marta Morales", ext: 8028,
+        days: {
+          1: "10:00",
+          2: "10:00",
+          3: "09:00",
+          4: "09:00",
+          5: "09:00",
+          6: "07:00"
+        }
+      },
+
+      {
+        nombre: "Pablo Ibañez", ext: 8029,
+        days: {
+          1: "08:00",
+          2: "08:00",
+          3: "08:00",
+          4: "08:00",
+          5: "08:00",
+          6: "07:00"
+        }
+      },
+
+      { nombre: "María Perdomo", ext: 8030, default: "09:00", sabado: "09:00" }
+
+    ];
+
+    function obtenerHorarioAgente(agente) {
+
+      const hoy = new Date().getDay();
+
+      if (agente.days) {
+        return agente.days[hoy];
+      }
+
+      if (hoy === 6) {
+        return agente.sabado;
+      }
+
+      return agente.default;
+
+    }
+    // DOM
+    const grid = document.getElementById('grid');
+    const pdfAgentFilter = document.getElementById('pdfAgentFilter');
+    const pdfDateFrom = document.getElementById('pdfDateFrom');
+    const pdfDateTo = document.getElementById('pdfDateTo');
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
+    const compactCheckbox = document.getElementById('compactCheckbox');
+    const floatingBtn = document.getElementById('floatingBtn');
+
+    const overlayEl = document.getElementById('overlay');
+    const formAgent = document.getElementById('formAgent');
+    const formExt = document.getElementById('formExt');
+    const formDate = document.getElementById('formDate');
+    const formLogin = document.getElementById('formLogin');
+    const formLogout = document.getElementById('formLogout');
+    const formSalientes = document.getElementById('formSalientes');
+    const formEntrantes = document.getElementById('formEntrantes');
+    const formObs = document.getElementById('formObs');
+    const saveBtn = document.getElementById('saveBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    const rightPanel = document.getElementById('rightPanel');
+    const panelName = document.getElementById('panelName');
+    const panelExt = document.getElementById('panelExt');
+    const panelState = document.getElementById('panelState');
+    const panelTimes = document.getElementById('panelTimes');
+    const panelSalientes = document.getElementById('panelSalientes');
+    const panelEntrantes = document.getElementById('panelEntrantes');
+    const panelObs = document.getElementById('panelObs');
+    const panelEditBtn = document.getElementById('panelEditBtn');
+
+    // defaults
+    const today = new Date().toISOString().split('T')[0];
+    pdfDateFrom.value = today; pdfDateTo.value = today; formDate.value = today;
+
+    // init selects
+    function initSelects() {
+      agentes.forEach(a => {
+        const o = document.createElement('option'); o.value = String(a.ext); o.textContent = `${a.nombre} — ${a.ext}`; pdfAgentFilter.appendChild(o);
+        const o2 = document.createElement('option'); o2.value = String(a.ext); o2.textContent = `${a.nombre} — ${a.ext}`; formAgent.appendChild(o2);
+      });
+    }
+    initSelects();
+    // realtime cache
+    let registros = [];
+
+    db.collection("agentes_sabado").onSnapshot((snap) => {
+
+      registros = [];
+
+      snap.forEach(doc => {
+        registros.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      renderGrid();
+
+    });
+
+    // helpers
+    function toMinutes(h) { if (!h) return null; const p = h.split(':').map(Number); if (p.length < 2 || p.some(isNaN)) return null; return p[0] * 60 + p[1]; }
+    function esc(s) { if (!s) return ''; return String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'); }
+
+    // render
+    function renderGrid() {
+
+      const q = searchInput.value.trim().toLowerCase();
+      const filter = filterSelect.value;
+
+      const selectedAgent = pdfAgentFilter.value;
+      const from = pdfDateFrom.value;
+      const to = pdfDateTo.value;
+
+      grid.innerHTML = "";
+
+      registros.forEach(rec => {
+
+        const ext = String(rec.extension);
+        const name = rec.nombre;
+
+        const login = rec.login || "";
+        const logout = rec.logout || "";
+        const salientes = rec.salientes ?? 0;
+        const entrantes = rec.entrantes ?? 0;
+        const obs = rec.observaciones || "";
+
+        // buscar horario del agente
+        const agent = agentes.find(a => String(a.ext) === ext);
+        const horario = agent ? obtenerHorarioAgente(agent) : "08:00";
+        // filtro por agente
+        if (selectedAgent !== "all" && ext !== selectedAgent) return;
+
+        // filtro por fecha
+        if (from) {
+          if (rec.fecha < from) return;
+        }
+
+        if (to) {
+          if (rec.fecha > to) return;
+        }
+        // búsqueda
+        if (q) {
+          const inName = name.toLowerCase().includes(q);
+          const inExt = ext.includes(q);
+          if (!inName && !inExt) return;
+        }
+
+        // estado
+        let estado = "Sin marcar";
+        let badgeColor = "var(--muted)";
+
+        if (login) {
+
+          const lm = toMinutes(login);
+          const hm = toMinutes(horario);
+
+          if (lm === null) {
+            estado = "Hora inválida";
+            badgeColor = "var(--accent)";
+          }
+          else if (lm <= hm) {
+            estado = "Puntual";
+            badgeColor = "var(--green)";
+          }
+          else {
+            const r = lm - hm;
+            estado = `Retraso ${r} min`;
+            badgeColor = r <= 5 ? "var(--accent)" : "var(--red)";
+          }
+
+        }
+
+        // filtros de estado
+        if (filter === "puntual" && badgeColor !== "var(--green)") return;
+        if (filter === "leve" && badgeColor !== "var(--accent)") return;
+        if (filter === "retraso" && badgeColor !== "var(--red)") return;
+        if (filter === "sinmarcar" && login) return;
+
+        // crear tarjeta
+        const wrap = document.createElement("div");
+        wrap.className = "card-wrap";
+
+        const c = document.createElement("div");
+        c.className = "card";
+
+        c.innerHTML = `
+      <div class="card-header">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="avatar">${name.charAt(0)}</div>
+          <div>
+            <div class="agent">${esc(name)}</div>
+            <div class="ext">Ext ${ext} • ${rec.fecha}</div>
+          </div>
+        </div>
+
+        <div style="text-align:right">
+          <div class="state" style="color:${badgeColor}">${estado}</div>
+          <div class="ext">${login || "-"} • ${logout || "-"}</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Salientes</div>
+          <div class="value">${salientes}</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Entrantes</div>
+          <div class="value">${entrantes}</div>
+        </div>
+      </div>
+
+      <div class="note">${esc(obs || "Sin observaciones")}</div>
+    `;
+
+        wrap.appendChild(c);
+        grid.appendChild(wrap);
+
+      });
+
+    }
+    function openPanel(ext) { const agent = agentes.find(a => String(a.ext) === String(ext)); const rec = latestData[String(ext)] || {}; panelName.textContent = agent.nombre; panelExt.textContent = 'Ext: ' + agent.ext + (rec.fecha ? ' • ' + rec.fecha : ''); panelTimes.textContent = `${rec.login || '-'} • ${rec.logout || '-'}`; panelSalientes.textContent = rec.salientes ?? 0; panelEntrantes.textContent = rec.entrantes ?? 0; panelObs.textContent = rec.observaciones || 'Sin observación'; panelState.textContent = (() => { if (!rec.login) return 'Sin marcar'; const lm = toMinutes(rec.login); if (lm === null) return 'Hora inválida'; if (lm <= 8 * 60) return 'Puntual'; const r = lm - 8 * 60; return 'Retraso ' + r + ' min'; })(); rightPanel.classList.add('show'); panelEditBtn.onclick = () => showModal(ext); }
+
+    // modal
+    function showModal(ext) { overlayEl.classList.add('show'); const sel = ext || formAgent.value || String(agentes[0].ext); formAgent.value = String(sel); formExt.value = String(sel); const rec = latestData[String(sel)] || {}; formDate.value = rec.fecha || today; formLogin.value = rec.login || ''; formLogout.value = rec.logout || ''; formSalientes.value = rec.salientes ?? ''; formEntrantes.value = rec.entrantes ?? ''; formObs.value = rec.observaciones || ''; }
+    function hideModal() { overlayEl.classList.remove('show'); }
+
+    // populate modal agent select
+    function initModal() { agentes.forEach(a => { const o = document.createElement('option'); o.value = String(a.ext); o.textContent = `${a.nombre} — ${a.ext}`; formAgent.appendChild(o); }); }
+    initModal();
+
+    // shortcuts
+    document.addEventListener('keydown', (e) => { if (e.shiftKey && (e.key === 'R' || e.key === 'r')) { showModal(); } });
+    floatingBtn.addEventListener('click', () => showModal());
+    closeBtn.addEventListener('click', hideModal);
+    formAgent.addEventListener('change', () => formExt.value = formAgent.value);
+
+    // save
+    saveBtn.addEventListener('click', async () => {
+      const ext = String(formAgent.value); const agent = agentes.find(a => String(a.ext) === ext); if (!agent) { alert('Agente inválido'); return; }
+      const login = formLogin.value.trim(); if (!login) { alert('Ingresa Log in'); return; }
+      const logout = formLogout.value.trim(); const salientes = Number(formSalientes.value || 0); const entrantes = Number(formEntrantes.value || 0); const obs = formObs.value.trim(); const fecha = formDate.value || today;
+      try {
+        const docId = `${ext}_${fecha}`;
+
+        await db.collection('agentes_sabado').doc(docId).set({
+          nombre: agent.nombre,
+          extension: Number(ext),
+          fecha,
+          login,
+          logout,
+          salientes,
+          entrantes,
+          observaciones: obs,
+          timestamp: Date.now()
+        }); hideModal();
+      } catch (err) { console.error('Guardar', err); alert('Error al guardar. Revise consola.'); }
+    });
+
+    // filters
+    searchInput.addEventListener('input', renderGrid);
+    filterSelect.addEventListener('change', renderGrid);
+    compactCheckbox.addEventListener('change', renderGrid);
+    pdfAgentFilter.addEventListener('change', renderGrid);
+    pdfDateFrom.addEventListener('change', renderGrid);
+    pdfDateTo.addEventListener('change', renderGrid);
+    // pdf
+    document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+
+      const from = pdfDateFrom.value;
+      const to = pdfDateTo.value;
+      const selected = pdfAgentFilter.value;
+
+      const rows = [];
+
+      for (const agent of agentes) {
+
+        if (selected !== 'all' && String(agent.ext) !== String(selected)) continue;
+
+        const rec = registros
+          .filter(r => String(r.extension) === String(agent.ext))
+          .sort((a, b) => b.timestamp - a.timestamp)[0]; if (!rec) continue;
+
+        // filtro de fechas
+        if (from || to) {
+          const rDate = new Date(rec.fecha || '');
+          if (from && rDate < new Date(from)) continue;
+          if (to && rDate > new Date(to + 'T23:59:59')) continue;
+        }
+
+        // 🔥 CALCULAR ESTADO CON HORARIO REAL
+        let estado = 'Sin marcar';
+
+        if (rec.login) {
+
+          const lm = toMinutes(rec.login);
+          const hm = toMinutes(obtenerHorarioAgente(agent) || "08:00");
+          if (lm === null) {
+            estado = 'Hora inválida';
+          }
+          else if (lm <= hm) {
+            estado = 'Puntual';
+          }
+          else {
+            const r = lm - hm;
+            estado = 'Retraso ' + r + ' min';
+          }
+        }
+
+        rows.push({
+          main: [
+            rec.nombre || agent.nombre,
+            rec.extension || agent.ext,
+            rec.fecha || '',
+            rec.login || '',
+            rec.logout || '',
+            rec.salientes || 0,
+            rec.entrantes || 0,
+            estado
+          ],
+          obs: rec.observaciones || ''
+        });
+      }
+
+      // título
+      doc.setFontSize(14);
+      doc.text('Reporte De Agentes Sabado', 105, 14, null, null, 'center');
+
+      doc.setFontSize(10);
+      doc.text(`Rango: ${from || '...'} a ${to || '...'}`, 105, 20, null, null, 'center');
+
+      const body = [];
+
+      rows.forEach(r => {
+        body.push(r.main);
+        body.push([{
+          content: 'Observaciones: ' + (r.obs || 'Sin observación'),
+          colSpan: 8,
+          styles: { halign: 'left' }
+        }]);
+      });
+
+      doc.autoTable({
+        startY: 26,
+        head: [['Nombre', 'Ext', 'Fecha', 'Log in', 'Log out', 'Salientes', 'Entrantes', 'Estado']],
+        body: body,
+        styles: { fontSize: 9, cellPadding: 4, halign: 'center', valign: 'middle' },
+        headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+
+        didParseCell: function (data) {
+
+          if (data.section === 'body' && data.column.index === 7) {
+            const val = String(data.cell.raw || '');
+            if (val.startsWith('Retraso')) data.cell.styles.textColor = [220, 38, 38];
+            if (val === 'Sin marcar') data.cell.styles.textColor = [130, 130, 130];
+          }
+
+          if (data.section === 'body' &&
+            typeof data.cell.raw === 'string' &&
+            data.cell.raw.startsWith('Observaciones:')) {
+
+            data.cell.styles.halign = 'left';
+            data.cell.styles.fontStyle = 'italic';
+            data.cell.styles.textColor = [200, 200, 200];
+          }
+        }
+      });
+
+      doc.save(`reporte_agentes_${from || 'all'}_a_${to || 'all'}.pdf`);
+    });
+
+    // initial render
+    renderGrid();
+  </script>
 </body>
 
 </html>

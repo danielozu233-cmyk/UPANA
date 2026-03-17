@@ -608,6 +608,32 @@
       Pablo: "8029",
       Majo: "8030"
     }
+    function fechaLocalGT() {
+  const ahora = new Date();
+  const y = ahora.getFullYear();
+  const m = String(ahora.getMonth() + 1).padStart(2, "0");
+  const d = String(ahora.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+async function guardarTiemposEnReporte(nombre, infoActual) {
+  const extension = extensiones[nombre];
+  if (!extension) return;
+
+  const hoy = fechaLocalGT();
+  const refAgente = doc(db, "agentes_sabado", `${extension}_${hoy}`);
+
+  const tiempoBanio = infoActual?.tiempoBanio || 0;
+  const tiempoAlmuerzo = infoActual?.tiempoAlmuerzo || 0;
+
+  await setDoc(refAgente, {
+    extension: Number(extension),
+    nombre,
+    fecha: hoy,
+    tiempoBanio,
+    tiempoAlmuerzo
+  }, { merge: true });
+}
 
     const LIMITE = { baño: 15 * 60, almuerzo: 60 * 60 };
     const refBanio = doc(db, "callcenter", "estado");
@@ -766,56 +792,62 @@
 
     async function toggleEstado(nombre, tipo) {
 
-      if (tipo === "baño") {
-        let contador = 0;
-        nombres.forEach(n => {
-          if (tarjetas[n].info?.tipo === "baño") contador++;
-        });
+  if (tipo === "baño") {
+    let contador = 0;
+    nombres.forEach(n => {
+      if (tarjetas[n].info?.tipo === "baño") contador++;
+    });
 
-        if (contador >= 2) {
-          mostrarAlertaBanio();
-          return;
-        }
-      }
-
-      const info = tarjetas[nombre].info || { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 };
-
-
-      const inicioMs = (val) => {
-        if (!val && val !== 0) return null;
-        if (typeof val === "number") return val;
-        if (val.toMillis) return val.toMillis();
-        return null;
-      };
-
-      let acBanio = info.tiempoBanio || 0;
-      let acAlmuerzo = info.tiempoAlmuerzo || 0;
-
-      if (info.tipo) {
-
-        const ini = inicioMs(info.inicio);
-        const segs = ini ? Math.floor((Date.now() - ini) / 1000) : 0;
-        if (info.tipo === "baño") acBanio += segs;
-        if (info.tipo === "almuerzo") acAlmuerzo += segs;
-
-      }
-
-      let nuevoTipo = tipo;
-
-      if (tipo === info.tipo || tipo === null) {
-        nuevoTipo = null;
-      }
-
-      await updateDoc(refBanio, {
-        [nombre]: {
-          tipo: nuevoTipo,
-          inicio: nuevoTipo ? Date.now() : null,
-          tiempoBanio: acBanio,
-          tiempoAlmuerzo: acAlmuerzo
-        }
-      });
-
+    if (contador >= 2) {
+      mostrarAlertaBanio();
+      return;
     }
+  }
+
+  const info = tarjetas[nombre].info || {
+    tipo: null,
+    inicio: null,
+    tiempoBanio: 0,
+    tiempoAlmuerzo: 0
+  };
+
+  const inicioMs = (val) => {
+    if (!val && val !== 0) return null;
+    if (typeof val === "number") return val;
+    if (val.toMillis) return val.toMillis();
+    return null;
+  };
+
+  let acBanio = info.tiempoBanio || 0;
+  let acAlmuerzo = info.tiempoAlmuerzo || 0;
+
+  if (info.tipo) {
+    const ini = inicioMs(info.inicio);
+    const segs = ini ? Math.max(0, Math.floor((Date.now() - ini) / 1000)) : 0;
+
+    if (info.tipo === "baño") acBanio += segs;
+    if (info.tipo === "almuerzo") acAlmuerzo += segs;
+  }
+
+  let nuevoTipo = tipo;
+
+  if (tipo === info.tipo || tipo === null) {
+    nuevoTipo = null;
+  }
+
+  const nuevoEstado = {
+    tipo: nuevoTipo,
+    inicio: nuevoTipo ? Date.now() : null,
+    tiempoBanio: acBanio,
+    tiempoAlmuerzo: acAlmuerzo
+  };
+
+  await updateDoc(refBanio, {
+    [nombre]: nuevoEstado
+  });
+
+  await guardarTiemposEnReporte(nombre, nuevoEstado);
+}
 
 
     onSnapshot(refBanio, (docSnap) => {
@@ -867,6 +899,31 @@
         if (info.tipo === "almuerzo" && tAlmuerzo > LIMITE.almuerzo) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Almuerzo excedido"; }
       });
     }, 1000);
+    setInterval(async () => {
+  const ahora = Date.now() + desfaseServidor;
+
+  for (const nombre of nombres) {
+    const info = tarjetas[nombre]?.info;
+    if (!info) continue;
+
+    let tBanio = info.tiempoBanio || 0;
+    let tAlmuerzo = info.tiempoAlmuerzo || 0;
+    const inicio = info.inicio || null;
+
+    if (info.tipo === "baño" && inicio) {
+      tBanio += Math.max(0, Math.floor((ahora - inicio) / 1000));
+    }
+
+    if (info.tipo === "almuerzo" && inicio) {
+      tAlmuerzo += Math.max(0, Math.floor((ahora - inicio) / 1000));
+    }
+
+    await guardarTiemposEnReporte(nombre, {
+      tiempoBanio: tBanio,
+      tiempoAlmuerzo: tAlmuerzo
+    });
+  }
+}, 15000);
 
     async function registrarLlamada(nombre) {
 
@@ -1079,6 +1136,22 @@
 
       const resetData = {};
       nombres.forEach((nombre) => resetData[nombre] = { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 });
+      const hoy = fechaLocalGT();
+
+for (const nombre of nombres) {
+  const extension = extensiones[nombre];
+  if (!extension) continue;
+
+  const refAgente = doc(db, "agentes_sabado", `${extension}_${hoy}`);
+
+  await setDoc(refAgente, {
+    extension: Number(extension),
+    nombre,
+    fecha: hoy,
+    tiempoBanio: 0,
+    tiempoAlmuerzo: 0
+  }, { merge: true });
+}
       await updateDoc(refBanio, resetData);
 
       const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));

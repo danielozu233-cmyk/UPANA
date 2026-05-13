@@ -1,1187 +1,133 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <title>EIS</title>
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/1302/1302539.png" type="image/png">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0f172a;
-      color: #f1f5f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 95vh;
-      margin: 0;
-      padding: 10px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 12px;
-      font-size: 30px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .contenedor {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      justify-content: center;
-      align-items: start;
-      width: 100%;
-      max-width: 1400px;
-    }
-
-    .tarjeta {
-      position: relative;
-      background: #1e293b;
-      border-radius: 12px;
-      padding: 22px 8px 12px 8px;
-      /* espacio arriba para login */
-      text-align: center;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.15s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-      overflow: visible;
-    }
-
-    .tarjeta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
-    }
-
-    .flip {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .frontal,
-    .trasera {
-      backface-visibility: hidden;
-      transition: opacity 0.3s ease;
-      width: 100%;
-    }
-
-    .frontal.active {
-      opacity: 1;
-      z-index: 2;
-      position: relative;
-    }
-
-    .frontal {
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .trasera.active {
-      opacity: 1;
-      z-index: 2;
-      position: relative;
-    }
-
-    .trasera {
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      max-height: 132px;
-    }
-
-    .nombre {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #fff;
-    }
-
-    .estado {
-      display: inline-block;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      padding: 5px 12px;
-      border-radius: 9999px;
-      text-align: center;
-      color: #fff;
-    }
-
-    .estado.libre {
-      background: #16a34a;
-    }
-
-    .estado.ocupado {
-      background: #facc15;
-      color: #1e293b;
-      animation: pulse 1.2s infinite;
-    }
-
-    .estado.excedido {
-      background: #ef4444;
-      color: #fff;
-      animation: pulse 1.2s infinite;
-    }
-
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.05);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    .tiempo {
-      font-size: 14px;
-      margin: 2px 0;
-      color: #fff;
-      font-weight: 500;
-    }
-
-    .tiempo span.cronometro {
-      color: #facc15;
-      font-weight: 700;
-    }
-
-    .menu-radial {
-      position: fixed;
-      transform: translate(-50%, -50%) scale(0);
-      transition: transform 0.25s ease;
-      pointer-events: none;
-      z-index: 2000;
-    }
-
-    .menu-radial.active {
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: auto;
-    }
-
-    .menu-radial button {
-      position: absolute;
-      width: 55px;
-      height: 55px;
-      border: none;
-      border-radius: 25%;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 25px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-    }
-
-    .menu-radial button:hover {
-      transform: scale(1.15);
-      box-shadow: 0 0 14px rgba(0, 0, 0, 0.6);
-    }
-
-    .btn-libre {
-      background: #22c55e;
-      top: -55px;
-      left: -20px;
-      box-shadow: 0 0 14px rgba(34, 197, 94, 0.8);
-    }
-
-    .btn-banio {
-      background: #facc15;
-      color: #1e293b;
-      top: 15px;
-      left: -65px;
-      font-size: 14px;
-      box-shadow: 0 0 10px rgba(253, 224, 71, 0.8);
-    }
-
-    .btn-almuerzo {
-      background: #facc15;
-      top: 15px;
-      left: 25px;
-      box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-    }
-
-    .tarjeta.dimmed {
-      filter: brightness(0.5);
-      transform: scale(0.97);
-    }
-
-    .icon-telefono {
-      position: absolute;
-      top: 0px;
-      right: 5px;
-      cursor: pointer;
-      font-size: 20px;
-      z-index: 3;
-    }
-
-    .regresar {
-      position: relative;
-      top: 0px;
-      right: -70px;
-      cursor: pointer;
-      font-size: 20px;
-      z-index: 3;
-    }
-
-
-    .registro {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      margin-top: 10px;
-      width: 100%;
-    }
-
-    .registro input,
-    .registro select {
-      padding: 4px;
-      border-radius: 6px;
-      border: none;
-      width: 100%;
-      height: 23px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    .botones {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 5px;
-    }
-
-    .botones button {
-      width: 35px;
-      height: 35px;
-      border: none;
-      border-radius: 50%;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 4px;
-    }
-
-    .btn-check {
-      background: #16a34a;
-      color: white;
-    }
-
-    .btn-x {
-      background: #ef4444;
-      color: white;
-    }
-
-    .estadisticas {
-      font-size: 12px;
-      margin-top: 4px;
-      color: #f1f5f9;
-      font-weight: 500;
-    }
-
-    .overlay-banio {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(3px);
-      z-index: 9998;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s ease;
-    }
-
-    .overlay-banio.show {
-      opacity: 1;
-    }
-
-    .alerta-banio {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(.8);
-      background: #111827;
-      color: white;
-      padding: 28px 40px;
-      border-radius: 14px;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-      border: 3px solid #ef4444;
-      box-shadow:
-        0 0 20px rgba(239, 68, 68, 0.8),
-        0 0 60px rgba(239, 68, 68, 0.4);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      /* 👈 evita bloquear clics */
-      transition: all .25s ease;
-    }
-
-    .alerta-banio.show {
-      opacity: 1;
-      pointer-events: auto;
-      /* 👈 solo cuando se muestra */
-    }
-
-    .alerta-banio.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .login-superior {
-      position: absolute;
-      top: -15px;
-      left: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 5px;
-    }
-
-    .login-puntual {
-      background: #052e16;
-      color: #4ade80;
-    }
-
-    .login-tarde {
-      background: #450a0a;
-      color: #f87171;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Almuerzos CC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --navy: #0f172a; --blue: #2563eb; --accent: #38bdf8; }
+        body { background: var(--navy); color: white; font-family: 'Poppins', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .card { background: rgba(30, 41, 59, 0.8); padding: 40px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 550px; }
+        h1 span { color: var(--accent); }
+        .btn { padding: 14px 30px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; background: var(--blue); color: white; transition: 0.4s; width: 100%; margin-top: 20px; }
+        .btn:hover { background: #1d4ed8; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4); }
+        input { padding: 14px; border-radius: 10px; border: none; width: 100%; margin-top: 10px; background: #1e293b; color: white; }
+    </style>
 </head>
-
 <body>
-  <h1></h1>
-  <div class="contenedor" id="contenedor"></div>
 
-  <!-- menú flotante -->
-  <div id="menuGlobal" class="menu-radial" aria-hidden="true">
-    <button class="btn-libre" title="Marcar Libre">✔</button>
-    <button class="btn-banio" title="Marcar Baño">🚻</button>
-    <button class="btn-almuerzo" title="Marcar Almuerzo">🍔</button>
-  </div>
+    <div class="card">
+        <h1>Almuerzos <span>CC</span></h1>
+        <p style="opacity: 0.7; font-size: 0.9rem;">Cronograma Mensual</p>
+        <div style="text-align: left; margin-top: 25px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; letter-spacing: 1px; font-weight: 600;">FECHA INICIAL (LUNES SEMANA 1)</label>
+            <input type="date" id="startDate">
+        </div>
+        <button class="btn" onclick="generateMonthly()">Descargar</button>
+    </div>
 
-  <script type="module">
-    import { increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    import {
-      initializeApp
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-
-    import {
-      getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, where,
-      getDocs, addDoc, serverTimestamp, deleteDoc
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-    import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCKRB49LOhaR79NI8CwypqCMf_10GHd77k",
-  authDomain: "reports-e956a.firebaseapp.com",
-  projectId: "reports-e956a",
-  storageBucket: "reports-e956a.firebasestorage.app",
-  messagingSenderId: "1058914487818",
-  appId: "1:1058914487818:web:ef0e53d4a400cb85a199f3",
-  measurementId: "G-XB6QQR984G"
-};
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    let desfaseServidor = 0;
-    const refLogins = collection(db, "agentes_sabado");
-    const nombres = ["Nestor", "Daniel", "Andres", "Rafael", "Alejandro", "Tania", "Marta", "Pablo", "Saraí", "Michi", "Evelyn", "Merlin", "Ashley", "Gabriela", "Bryan", "Diego", "Jorge", "Joselyne", "Andrea", "Omar", "Javier", "Synndy", "Anthony", "Mildred", "Madelin", "Majo", "Monica", "Jackeline",];
+<script>
     const agentes = [
-
-      {
-        nombre: "Sarahi Churumia", ext: 8001,
-        days: {
-          1: "09:00",
-          2: "09:00",
-          3: "09:00",
-          4: "10:00",
-          5: "10:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Justa Jaes", ext: 8002, default: "09:00", sabado: "09:00" },
-
-      { nombre: "Javier Alvarez", ext: 8003, default: "08:00", sabado: "07:00" },
-
-      { nombre: "Merlin Bajan", ext: 8004, default: "08:00", sabado: null },
-
-      { nombre: "Mónica Ordónez", ext: 8005, default: "09:00", sabado: "09:00" },
-
-      {
-        nombre: "Alejandro Vásquez", ext: 8006,
-        days: {
-          1: "09:00",
-          2: "09:00",
-          3: "08:00",
-          4: "08:00",
-          5: "08:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Joselyne Velásquez", ext: 8007, default: "09:00", sabado: "09:00" },
-
-      {
-        nombre: "Jackeline Castillo", ext: 8008,
-        days: {
-          1: "10:00",
-          2: "10:00",
-          3: "09:00",
-          4: "09:00",
-          5: "09:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Mildred Cordero", ext: 8009, default: "08:00", sabado: "09:00" },
-
-      {
-        nombre: "Tania de León", ext: 8010,
-        days: {
-          1: "09:00",
-          2: "09:00",
-          3: "09:00",
-          4: "10:00",
-          5: "10:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Anthony García", ext: 8011, default: "09:00", sabado: "09:00" },
-
-      { nombre: "Jorge Veliz", ext: 8013, default: "09:00", sabado: "09:00" },
-
-      { nombre: "Daniel Coyoy", ext: 8014, default: "08:00", sabado: null },
-
-      {
-        nombre: "Néstor Galvez", ext: 8015,
-        days: {
-          1: "10:00",
-          2: "10:00",
-          3: "09:00",
-          4: "09:00",
-          5: "09:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Andrea Jiménez", ext: 8016, default: "09:00", sabado: "09:00" },
-
-      { nombre: "Diego Chiché", ext: 8017, default: "09:00", sabado: "09:00" },
-
-      { nombre: "Ashley López", ext: 8018, default: "08:00", sabado: "07:00" },
-
-      { nombre: "Synndy Sanchez", ext: 8020, default: "09:00", sabado: "09:00" },
-
-      {
-        nombre: "Mishell de León", ext: 8021,
-        days: {
-          1: "10:00",
-          2: "10:00",
-          3: "09:00",
-          4: "09:00",
-          5: "09:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Omar Ramirez", ext: 8022, default: "09:00", sabado: "08:00" },
-
-      { nombre: "Madelin Ovando", ext: 8023, default: "09:00", sabado: "09:00" },
-
-      {
-        nombre: "Evelyn de León", ext: 8024,
-        days: {
-          1: "10:00",
-          2: "10:00",
-          3: "09:00",
-          4: "09:00",
-          5: "09:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "Andres Marín", ext: 8025, default: "08:00", sabado: null },
-
-      { nombre: "Bryan Hernandez", ext: 8026, default: "09:00", sabado: "09:00" },
-
-      {
-        nombre: "Rafael Sánchez", ext: 8027,
-        days: {
-          1: "09:00",
-          2: "09:00",
-          3: "09:00",
-          4: "10:00",
-          5: "10:00",
-          6: "07:00"
-        }
-      },
-
-      {
-        nombre: "Marta Morales", ext: 8028,
-        days: {
-          1: "10:00",
-          2: "10:00",
-          3: "09:00",
-          4: "09:00",
-          5: "09:00",
-          6: "07:00"
-        }
-      },
-
-      {
-        nombre: "Pablo Ibañez", ext: 8029,
-        days: {
-          1: "08:00",
-          2: "08:00",
-          3: "08:00",
-          4: "08:00",
-          5: "08:00",
-          6: "07:00"
-        }
-      },
-
-      { nombre: "María Perdomo", ext: 8030, default: "09:00", sabado: "09:00" }
-
+        { nombre: "Saraí Churumia", fac: "Económicas", in10: true },
+        { nombre: "Gabriela Jaes", fac: "Económicas" },
+        { nombre: "Javier Alvarez", fac: "Económicas", out4: true }, // Javier sale a las 4
+        { nombre: "Merlin Bajan", fac: "Odonto.", fijo12: true },
+        { nombre: "Mónica Ordóñez", fac: "Odonto." },
+        { nombre: "Alejandro Vásquez", fac: "Salud", out4: true }, 
+        { nombre: "Joselyne Velásquez", fac: "Salud" },
+        { nombre: "Jackeline Castillo", fac: "Salud", in10: true },
+        { nombre: "Mildred Cordero", fac: "Jurídicas", out4: true }, 
+        { nombre: "Tania de León", fac: "Jurídicas", in10: true },
+        { nombre: "Anthony García", fac: "Jurídicas", out4: true }, 
+        { nombre: "Jorge Veliz", fac: "Médicas" },
+        { nombre: "Daniel Coyoy", fac: "Médicas" },
+        { nombre: "Nestor Galvez", fac: "FACOM", in10: true },
+        { nombre: "Andrea Jiménez", fac: "FACOM" },
+        { nombre: "Diego Chiché", fac: "FACOM" },
+        { nombre: "Ashley López", fac: "FACEDU" },
+        { nombre: "Synndy Sanchez", fac: "FACEDU" },
+        { nombre: "Mishell de León", fac: "FACEDU", in10: true },
+        { nombre: "Madelin Ovando", fac: "Humanidades" },
+        { nombre: "Andres Marín", fac: "Ingeniería", out4: true },
+        { nombre: "Bryan Hernandez", fac: "Ingeniería" },
+        { nombre: "Rafael Sánchez", fac: "Arquitectura", in10: true },
+        { nombre: "Marta Morales", fac: "Teología", in10: true },
+        { nombre: "Pablo Ibañez", fac: "UVIRTUAL", out4: true }, 
+        { nombre: "María Perdomo", fac: "UVIRTUAL" }
     ];
 
-    function obtenerHorarioAgente(agente) {
+    function generateMonthly() {
+        const startStr = document.getElementById('startDate').value;
+        if(!startStr) return alert("Selecciona el lunes inicial.");
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let baseDate = new Date(startStr + "T00:00:00");
 
-      const hoy = new Date().getDay();
+        doc.setFontSize(18); doc.setTextColor(15, 23, 42);
+        doc.text("CRONOGRAMA DE ALMUERZOS", 105, 15, {align:'center'});
 
-      if (agente.days) {
-        return agente.days[hoy];
-      }
+        let yPos = 25;
 
-      if (hoy === 6) {
-        return agente.sabado;
-      }
+        for(let w=0; w<4; w++) {
+            let weekStart = new Date(baseDate); weekStart.setDate(baseDate.getDate() + (w * 7));
+            let weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 4);
+            
+            let slots = [[], [], []];
+            let facsUsed = [new Set(), new Set(), new Set()];
+            let pool = [...agentes].sort(() => Math.random() - 0.5);
 
-      return agente.default;
+            let mIdx = pool.findIndex(a => a.fijo12);
+            if(mIdx !== -1) { let m = pool.splice(mIdx, 1)[0]; slots[0].push(m); facsUsed[0].add(m.fac); }
 
-    }
-    const extensiones = {
-      Saraí: "8001",
-      Gabriela: "8002",
-      Javier: "8003",
-      Merlin: "8004",
-      Monica: "8005",
-      Alejandro: "8006",
-      Joselyne: "8007",
-      Jackeline: "8008",
-      Mildred: "8009",
-      Tania: "8010",
-      Anthony: "8011",
-      Jorge: "8013",
-      Daniel: "8014",
-      Nestor: "8015",
-      Andrea: "8016",
-      Diego: "8017",
-      Ashley: "8018",
-      Synndy: "8020",
-      Michi: "8021",
-      Omar: "8022",
-      Madelin: "8023",
-      Evelyn: "8024",
-      Andres: "8025",
-      Bryan: "8026",
-      Rafael: "8027",
-      Marta: "8028",
-      Pablo: "8029",
-      Majo: "8030"
-    }
-    function fechaLocalGT() {
-  const ahora = new Date();
-  const y = ahora.getFullYear();
-  const m = String(ahora.getMonth() + 1).padStart(2, "0");
-  const d = String(ahora.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
+            pool.forEach(ag => {
+                let slotsPermitidos = [0, 1, 2].filter(s => {
+                    if (ag.in10 && s === 0) return false;
+                    if (ag.out4 && s === 2) return false; 
+                    return true;
+                });
 
-async function guardarTiemposEnReporte(nombre, infoActual) {
-  const extension = extensiones[nombre];
-  if (!extension) return;
+                let order = slotsPermitidos.sort((a,b) => slots[a].length - slots[b].length);
+                let ok = false;
+                for(let s of order) {
+                    if(!facsUsed[s].has(ag.fac)) {
+                        slots[s].push(ag); facsUsed[s].add(ag.fac); ok = true; break;
+                    }
+                }
+                if(!ok) {
+                    let fallback = slotsPermitidos.sort((a,b) => slots[a].length - slots[b].length)[0];
+                    slots[fallback].push(ag);
+                }
+            });
 
-  const hoy = fechaLocalGT();
-  const refAgente = doc(db, "agentes_sabado", `${extension}_${hoy}`);
+            let xPos = (w % 2 === 0) ? 10 : 108;
+            const rango = `${weekStart.getDate()}/${weekStart.getMonth()+1} al ${weekEnd.getDate()}/${weekEnd.getMonth()+1}`;
 
-  const tiempoBanio = infoActual?.tiempoBanio || 0;
-  const tiempoAlmuerzo = infoActual?.tiempoAlmuerzo || 0;
+            doc.autoTable({
+                startY: yPos,
+                margin: { left: xPos },
+                tableWidth: 92,
+                pageBreak: 'avoid',
+                head: [[{content: `SEMANA ${w+1} (${rango})`, colSpan: 2, styles:{halign:'center', fillColor:[15,23,42]}}], 
+                       ['Horario', 'Personal (Facultad)']],
+                body: slots.map((s, i) => [
+                    i==0 ? '12:00' : i==1 ? '13:00' : '14:00',
+                    s.map(a => `${a.nombre} (${a.fac})`).join("\n")
+                ]),
+                theme: 'grid',
+                styles: { fontSize: 5.5, cellPadding: 1.5, overflow: 'linebreak' },
+                columnStyles: { 0: {cellWidth: 15, fontStyle: 'bold', halign: 'center'}, 1: {cellWidth: 77} },
+                headStyles: { fillColor: [37, 99, 235] }
+            });
 
-  await setDoc(refAgente, {
-    extension: Number(extension),
-    nombre,
-    fecha: hoy,
-    tiempoBanio,
-    tiempoAlmuerzo
-  }, { merge: true });
-}
-
-    const LIMITE = { baño: 15 * 60, almuerzo: 60 * 60 };
-    const refBanio = doc(db, "callcenter", "estado");
-    const contenedor = document.getElementById("contenedor");
-    const tarjetas = {};
-    const menuGlobal = document.getElementById("menuGlobal");
-    function mostrarAlertaBanio() {
-      const alerta = document.getElementById("alertaBanio");
-      alerta.classList.add("show");
-
-      setTimeout(() => {
-        alerta.classList.remove("show");
-      }, 2500);
-    }
-    let tarjetaActiva = null;
-
-    nombres.forEach(nombre => {
-      const tarjeta = document.createElement("div");
-      tarjeta.className = "tarjeta";
-
-      const flip = document.createElement("div");
-      flip.className = "flip";
-
-      const frontal = document.createElement("div");
-      frontal.className = "frontal active";
-
-      const spanNombre = document.createElement("div");
-      spanNombre.className = "nombre";
-      spanNombre.textContent = nombre;
-      const loginSpan = document.createElement("div");
-      loginSpan.className = "login-superior";
-      loginSpan.textContent = "--";
-      const estado = document.createElement("div");
-      estado.className = "estado libre";
-      estado.textContent = "Libre";
-
-      const tiempoBanio = document.createElement("div");
-      tiempoBanio.className = "tiempo";
-      tiempoBanio.innerHTML = `Baño: <span class="cronometro">0:00</span>`;
-
-      const tiempoAlmuerzo = document.createElement("div");
-      tiempoAlmuerzo.className = "tiempo";
-      tiempoAlmuerzo.innerHTML = `Almuerzo: <span class="cronometro">0:00</span>`;
-
-      const estadisticas = document.createElement("div");
-      estadisticas.className = "estadisticas";
-      estadisticas.textContent = "📞⬅️| 📞➡️";
-
-      const iconTelefono = document.createElement("div");
-      iconTelefono.className = "icon-telefono";
-      iconTelefono.textContent = "📞";
-
-      frontal.append(spanNombre, loginSpan, estado, tiempoBanio, tiempoAlmuerzo, estadisticas, iconTelefono);
-
-      const trasera = document.createElement("div");
-      trasera.className = "trasera";
-
-      const iconBanio = document.createElement("div");
-      iconBanio.className = "regresar";
-      iconBanio.textContent = "🚻";
-
-      const registro = document.createElement("div");
-      registro.className = "registro";
-
-
-      const selectTipo = document.createElement("select");
-
-      ["Entrante", "Saliente"].forEach(tipo => {
-        const opt = document.createElement("option");
-        opt.value = tipo;
-        opt.textContent = tipo;
-        selectTipo.appendChild(opt);
-      });
-
-
-      const inputCantidad = document.createElement("input");
-      inputCantidad.type = "number";
-      inputCantidad.min = "1";
-      inputCantidad.value = "1";
-      inputCantidad.placeholder = "Cantidad";
-
-      const botones = document.createElement("div");
-      botones.className = "botones";
-      const btnCheck = document.createElement("button");
-      btnCheck.className = "btn-check";
-      btnCheck.textContent = "✅";
-      const btnX = document.createElement("button");
-      btnX.className = "btn-x";
-      btnX.textContent = "❌";
-      botones.append(btnX, btnCheck);
-
-      registro.append(selectTipo, inputCantidad, botones); trasera.append(iconBanio, registro);
-      flip.append(frontal, trasera);
-      tarjeta.appendChild(flip);
-      contenedor.appendChild(tarjeta);
-
-      tarjetas[nombre] = {
-        estado,
-        tiempoBanio,
-        tiempoAlmuerzo,
-        loginSpan,
-        info: {},
-        estadisticas,
-        frontal,
-        trasera,
-        selectTipo,
-        inputCantidad,
-        btnCheck
-      };
-      iconTelefono.onclick = e => {
-        e.stopPropagation();
-        frontal.classList.remove("active");
-        trasera.classList.add("active");
-      };
-      iconBanio.onclick = e => {
-        e.stopPropagation();
-        trasera.classList.remove("active");
-        frontal.classList.add("active");
-      };
-
-      btnCheck.onclick = () => registrarLlamada(nombre);
-      btnX.style.display = "none";
-
-      registro.addEventListener("click", e => { e.stopPropagation(); });
-
-      tarjeta.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (trasera.classList.contains("active")) return;
-        document.querySelectorAll(".tarjeta").forEach(t => t.classList.remove("dimmed"));
-        menuGlobal.classList.remove("active");
-        const rect = tarjeta.getBoundingClientRect();
-        menuGlobal.style.top = `${rect.top + rect.height / 2}px`;
-        menuGlobal.style.left = `${rect.left + rect.width / 2}px`;
-        tarjeta.classList.add("dimmed");
-        tarjetaActiva = nombre;
-        menuGlobal.classList.add("active");
-        menuGlobal.setAttribute("aria-hidden", "false");
-      });
-    });
-
-    document.addEventListener("click", () => {
-      menuGlobal.classList.remove("active");
-      menuGlobal.setAttribute("aria-hidden", "true");
-      document.querySelectorAll(".tarjeta").forEach(t => t.classList.remove("dimmed"));
-      tarjetaActiva = null;
-    });
-
-    menuGlobal.querySelector(".btn-libre").onclick = () => accionMenu(tarjetaActiva, null);
-    menuGlobal.querySelector(".btn-banio").onclick = () => accionMenu(tarjetaActiva, "baño");
-    menuGlobal.querySelector(".btn-almuerzo").onclick = () => accionMenu(tarjetaActiva, "almuerzo");
-
-    async function accionMenu(nombre, tipo) {
-      if (!nombre) return;
-      await toggleEstado(nombre, tipo);
-    }
-
-    async function toggleEstado(nombre, tipo) {
-
-  if (tipo === "baño") {
-    let contador = 0;
-    nombres.forEach(n => {
-      if (tarjetas[n].info?.tipo === "baño") contador++;
-    });
-
-    if (contador >= 2) {
-      mostrarAlertaBanio();
-      return;
-    }
-  }
-
-  const info = tarjetas[nombre].info || {
-    tipo: null,
-    inicio: null,
-    tiempoBanio: 0,
-    tiempoAlmuerzo: 0
-  };
-
-  const inicioMs = (val) => {
-    if (!val && val !== 0) return null;
-    if (typeof val === "number") return val;
-    if (val.toMillis) return val.toMillis();
-    return null;
-  };
-
-  let acBanio = info.tiempoBanio || 0;
-  let acAlmuerzo = info.tiempoAlmuerzo || 0;
-
-  if (info.tipo) {
-    const ini = inicioMs(info.inicio);
-    const segs = ini ? Math.max(0, Math.floor((Date.now() - ini) / 1000)) : 0;
-
-    if (info.tipo === "baño") acBanio += segs;
-    if (info.tipo === "almuerzo") acAlmuerzo += segs;
-  }
-
-  let nuevoTipo = tipo;
-
-  if (tipo === info.tipo || tipo === null) {
-    nuevoTipo = null;
-  }
-
-  const nuevoEstado = {
-    tipo: nuevoTipo,
-    inicio: nuevoTipo ? Date.now() : null,
-    tiempoBanio: acBanio,
-    tiempoAlmuerzo: acAlmuerzo
-  };
-
-  await updateDoc(refBanio, {
-    [nombre]: nuevoEstado
-  });
-
-  await guardarTiemposEnReporte(nombre, nuevoEstado);
-}
-
-
-    onSnapshot(refBanio, (docSnap) => {
-
-      if (docSnap.metadata.hasPendingWrites === false) {
-        const tiempoServidor = docSnap.updateTime?.toMillis?.();
-        if (tiempoServidor) {
-          desfaseServidor = tiempoServidor - Date.now();
-        }
-      }
-      const data = docSnap.data();
-
-      nombres.forEach(nombre => {
-
-        if (!tarjetas[nombre]) return;
-
-        const info = data?.[nombre];
-
-        if (!info) return;
-
-        tarjetas[nombre].info = info;
-
-        if (info.tipo) {
-          tarjetas[nombre].estado.textContent =
-            info.tipo === "baño" ? "En Baño" : "Almorzando";
-          tarjetas[nombre].estado.className = "estado ocupado";
-        } else {
-          tarjetas[nombre].estado.textContent = "Libre";
-          tarjetas[nombre].estado.className = "estado libre";
+            if (w % 2 !== 0) yPos = doc.lastAutoTable.finalY + 12;
+            if (yPos > 240 && w < 3) { doc.addPage(); yPos = 20; }
         }
 
-      });
-
-    });
-
-    setInterval(() => {
-      const ahora = Date.now() + desfaseServidor; nombres.forEach(nombre => {
-        const info = tarjetas[nombre].info;
-        if (!info) return;
-        let tBanio = info.tiempoBanio || 0, tAlmuerzo = info.tiempoAlmuerzo || 0;
-        const inicioMs = info.inicio || null;
-        if (info.tipo === "baño" && inicioMs) tBanio += Math.max(0, Math.floor((ahora - inicioMs) / 1000));
-        if (info.tipo === "almuerzo" && inicioMs) tAlmuerzo += Math.max(0, Math.floor((ahora - inicioMs) / 1000));
-        const minB = Math.floor(tBanio / 60), secB = tBanio % 60;
-        const minA = Math.floor(tAlmuerzo / 60), secA = tAlmuerzo % 60;
-        tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class="cronometro">${minB}:${secB.toString().padStart(2, "0")}</span>`;
-        tarjetas[nombre].tiempoAlmuerzo.innerHTML = `Almuerzo: <span class="cronometro">${minA}:${secA.toString().padStart(2, "0")}</span>`;
-        if (info.tipo === "baño" && tBanio > LIMITE.baño) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Baño excedido"; }
-        if (info.tipo === "almuerzo" && tAlmuerzo > LIMITE.almuerzo) { tarjetas[nombre].estado.className = "estado excedido"; tarjetas[nombre].estado.textContent = "Almuerzo excedido"; }
-      });
-    }, 1000);
-    setInterval(async () => {
-  const ahora = Date.now() + desfaseServidor;
-
-  for (const nombre of nombres) {
-    const info = tarjetas[nombre]?.info;
-    if (!info) continue;
-
-    let tBanio = info.tiempoBanio || 0;
-    let tAlmuerzo = info.tiempoAlmuerzo || 0;
-    const inicio = info.inicio || null;
-
-    if (info.tipo === "baño" && inicio) {
-      tBanio += Math.max(0, Math.floor((ahora - inicio) / 1000));
+        doc.save("Cronograma_Mensual.pdf");
     }
-
-    if (info.tipo === "almuerzo" && inicio) {
-      tAlmuerzo += Math.max(0, Math.floor((ahora - inicio) / 1000));
-    }
-
-    await guardarTiemposEnReporte(nombre, {
-      tiempoBanio: tBanio,
-      tiempoAlmuerzo: tAlmuerzo
-    });
-  }
-}, 15000);
-
-    async function registrarLlamada(nombre) {
-
-      const tar = tarjetas[nombre];
-
-      const tipo = tar.selectTipo.value;
-      const cantidad = Number(tar.inputCantidad.value);
-
-      if (!cantidad || cantidad < 1) {
-        alert("Ingrese una cantidad válida");
-        return;
-      }
-
-      try {
-
-        // guardar historial
-        await addDoc(collection(db, "llamadas_test"), {
-          agente: nombre,
-          tipo: tipo,
-          cantidad: cantidad,
-          timestamp: serverTimestamp()
-        });
-
-        // buscar extensión
-        const extension = extensiones[nombre];
-
-        // referencia agente
-        const hoy = new Date().toISOString().split("T")[0];
-        const refAgente = doc(db, "agentes_sabado", `${extension}_${hoy}`);
-
-        // actualizar contador
-        if (tipo === "Entrante") {
-
-          await updateDoc(refAgente, {
-            entrantes: increment(cantidad)
-          });
-
-        }
-
-        if (tipo === "Saliente") {
-
-          await updateDoc(refAgente, {
-            salientes: increment(cantidad)
-          });
-
-        }
-
-        tar.inputCantidad.value = 1;
-        tar.trasera.classList.remove("active");
-        tar.frontal.classList.add("active");
-
-
-      } catch (e) {
-        console.error(e);
-      }
-
-    }
-
-    onSnapshot(collection(db, "llamadas_test"), (snapshot) => {
-      const llamadasPorAgente = {};
-
-      snapshot.forEach((doc) => {
-
-        const data = doc.data();
-
-        if (!llamadasPorAgente[data.agente]) {
-          llamadasPorAgente[data.agente] = {
-            entrantes: 0,
-            salientes: 0
-          };
-        }
-
-        if (data.tipo === "Entrante")
-          llamadasPorAgente[data.agente].entrantes += data.cantidad;
-
-        if (data.tipo === "Saliente")
-          llamadasPorAgente[data.agente].salientes += data.cantidad;
-
-      });
-
-      nombres.forEach((nombre) => {
-        const stats = llamadasPorAgente[nombre] || { entrantes: 0, salientes: 0 };
-
-        tarjetas[nombre].estadisticas.textContent =
-          `📞⬅️ ${stats.entrantes} | 📞➡️ ${stats.salientes}`;
-      });
-    });
-    onSnapshot(collection(db, "agentes_sabado"), (snapshot) => {
-
-      snapshot.forEach(docSnap => {
-        const hoy = new Date().toISOString().split("T")[0];
-        if (!docSnap.id.endsWith(hoy)) return;
-
-        const extension = docSnap.id.split("_")[0];
-        const data = docSnap.data();
-
-        const nombre = Object.keys(extensiones).find(n => extensiones[n] === extension);
-
-        if (!nombre) return;
-
-        if (tarjetas[nombre]) {
-          const login = data.login || "--";
-
-          tarjetas[nombre].loginSpan.textContent = login;
-          const agente = agentes.find(a => a.ext == extension);
-
-          if (agente && login !== "--") {
-
-            const loginMin = login.split(":")[0] * 60 + login.split(":")[1] * 1;
-            const horario = obtenerHorarioAgente(agente);
-
-            if (!horario) {
-              return; // el agente no trabaja hoy
-            }
-
-            const partes = horario.split(":");
-            const horarioMin = partes[0] * 60 + partes[1] * 1;
-            tarjetas[nombre].loginSpan.classList.remove("login-puntual", "login-tarde");
-
-            if (loginMin > horarioMin) {
-
-              tarjetas[nombre].loginSpan.classList.add("login-tarde");
-
-            } else {
-
-              tarjetas[nombre].loginSpan.classList.add("login-puntual");
-
-            }
-
-          }
-        }
-
-      });
-
-    });
-    const btnReset = document.createElement("button");
-    btnReset.textContent = "⟳ RESET";
-    Object.assign(btnReset.style, {
-      position: "fixed", Top: "10px", right: "80px",
-      padding: "8px 12px", fontSize: "14px", borderRadius: "8px",
-      border: "none", background: "#ef4444", color: "white",
-      cursor: "pointer", opacity: "0", transition: "opacity 0.3s ease", zIndex: "5000"
-    });
-    document.body.appendChild(btnReset);
-
-    const btnExcel = document.createElement("button");
-    btnExcel.textContent = "⬇️ EXCEL";
-    Object.assign(btnExcel.style, {
-      position: "fixed", top: "10px", right: "177px",
-      padding: "8px 12px", fontSize: "14px", borderRadius: "8px",
-      border: "none", background: "#22c55e", color: "white",
-      cursor: "pointer", opacity: "0", transition: "opacity 0.3s ease", zIndex: "5000"
-    });
-    document.body.appendChild(btnExcel);
-
-    const btnDashboard = document.createElement("button");
-    btnDashboard.textContent = "📊 ENCUESTAS  ";
-
-    Object.assign(btnDashboard.style, {
-      position: "fixed",
-      top: "10px",
-      right: "280px",
-      padding: "8px 12px",
-      fontSize: "14px",
-      borderRadius: "8px",
-      border: "none",
-      background: "#0d6efd",
-      color: "white",
-      cursor: "pointer",
-      opacity: "0",
-      transition: "opacity 0.3s ease",
-      zIndex: "5000"
-    });
-
-    btnDashboard.onclick = () => {
-      window.open(
-        "https://firebasestorage.googleapis.com/v0/b/workplace-18675.firebasestorage.app/o/Dashboard%20Encuestas.html?alt=media&token=78d463d1-3957-4d2b-9fdb-e7f435babaff",
-        "_blank"
-      );
-    };
-
-
-    document.body.appendChild(btnDashboard);
-
-
-    document.addEventListener("keydown", (e) => {
-      if (e.shiftKey && e.key.toLowerCase() === ":") {
-        btnReset.style.opacity = btnReset.style.opacity === "1" ? "0" : "1";
-      }
-      if (e.shiftKey && e.key.toLowerCase() === ":") {
-        btnExcel.style.opacity = btnExcel.style.opacity === "1" ? "0" : "1";
-      }
-      if (e.shiftKey && e.key.toLowerCase() === ":") {
-        btnDashboard.style.opacity = btnDashboard.style.opacity === "1" ? "0" : "1";
-      }
-    });
-
-    btnReset.onclick = async () => {
-      if (!confirm("¿Seguro que deseas REINICIAR todo (tiempos y llamadas)?")) return;
-      nombres.forEach((nombre) => {
-        tarjetas[nombre].info.tiempoBanio = 0;
-        tarjetas[nombre].info.tiempoAlmuerzo = 0;
-        tarjetas[nombre].info.tipo = null;
-        tarjetas[nombre].info.inicio = null;
-        tarjetas[nombre].estado.textContent = "Libre";
-        tarjetas[nombre].estado.className = "estado libre";
-        tarjetas[nombre].tiempoBanio.innerHTML = `Baño: <span class='cronometro'>0:00</span>`;
-        tarjetas[nombre].tiempoAlmuerzo.innerHTML = `Almuerzo: <span class='cronometro'>0:00</span>`;
-      });
-
-      const resetData = {};
-      nombres.forEach((nombre) => resetData[nombre] = { tipo: null, inicio: null, tiempoBanio: 0, tiempoAlmuerzo: 0 });
-      const hoy = fechaLocalGT();
-
-for (const nombre of nombres) {
-  const extension = extensiones[nombre];
-  if (!extension) continue;
-
-  const refAgente = doc(db, "agentes_sabado", `${extension}_${hoy}`);
-
-  await setDoc(refAgente, {
-    extension: Number(extension),
-    nombre,
-    fecha: hoy,
-    tiempoBanio: 0,
-    tiempoAlmuerzo: 0
-  }, { merge: true });
-}
-      await updateDoc(refBanio, resetData);
-
-      const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));
-      for (const docSnap of llamadasSnapshot.docs) await deleteDoc(doc(db, "llamadas_test", docSnap.id));
-
-      alert("Todo se ha reiniciado correctamente ✅");
-    };
-
-    btnExcel.onclick = async () => {
-      const llamadasSnapshot = await getDocs(collection(db, "llamadas_test"));
-      const data = llamadasSnapshot.docs.map(d => {
-        const item = d.data();
-        const fecha = item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : "";
-        return { Agente: item.agente, Numero: item.numero, Respondió: item.respondio ? "✅" : "❌", Fecha: fecha };
-      });
-
-      if (!data.length) return alert("No hay llamadas registradas.");
-
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Llamadas");
-      XLSX.writeFile(wb, `llamadas_salientes_${new Date().toLocaleDateString().replace(/\//g, "-")}.xlsx`);
-    };
-
-  </script>
-  <div id="alertaBanio" class="alerta-banio">
-    Espere a que otro agente regrese del baño
-  </div>
-
+</script>
 </body>
-
 </html>
